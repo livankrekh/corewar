@@ -12,20 +12,21 @@
 
 NAME1 = corewar
 CC = gcc
-SRC = src/go.c src/funcs.c src/vizualize.c
+SRC = src/go.c src/funcs.c src/vizualize.c src/viz_dop.c
 LIB = libft/libft.a
-FLAGS = -Wall -Wextra -Werror
-SDL_FLAG = -I /Library/Frameworks/SDL2.framework/Versions/A/Headers \
-			-F /Library/Frameworks/ -framework SDL2
-SDL_ttf = -I /vm/SDL2_ttf.framework/Versions/A/Headers \
-			-F ./ -framework SDL2_ttf
+FLAGS = -Wno-deprecated-declarations -Wall -Wextra -Werror
+# SDL_FLAG = -I /Library/Frameworks/SDL2.framework/Versions/A/Headers \
+# 			-F /Library/Frameworks/ -framework SDL2
+# SDL_ttf = -I /vm/SDL2_ttf.framework/Versions/A/Headers \
+# 			-F ./ -framework SDL2_ttf
+
 
 .PHONY: all re clean fclean
 
 all: $(NAME1)
 
 $(NAME1): $(LIB) $(SRC:.c=.o)
-	$(CC) -o $(NAME1) $(LIB) $(SRC:.c=.o) $(FLAGS) -g $(SDL_FLAG) $(SDL_ttf)
+	$(CC) -o $(NAME1) $(LIB) $(SRC:.c=.o) $(FLAGS) -g -lncurses
 	
 $(LIB):
 	make -C ./libft

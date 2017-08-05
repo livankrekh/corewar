@@ -24,17 +24,39 @@ void	zjmp(t_players *player, byte *map)
 	(*player).pos += jmp;
 }
 
-void	live(t_players *players, byte map, int count)
+void	live(t_players *players, byte map)
 {
 	int		i;
 
 	i = 0;
-	while (i < count)
+	while (players[i].header.name != NULL)
 	{
 		if (map == players[i].num)
 			players[i].live++;
 		i++;
 	}
+}
+
+char	*get_binary(byte *map, t_players *player)
+{
+	char	*tmp;
+	char	*res;
+	int		i;
+
+	res = ft_strnew(8);
+	tmp = ft_itoa_base(map[(*player).pos + 1], 2);
+	if (ft_strlen(tmp) < 8)
+	{
+		i = ft_strlen(tmp);
+		while (i)
+		{
+			res[7 - (ft_strlen(tmp) - i)] = tmp[i - 1];
+			i--;
+		}
+		while (i < 8 - (int)ft_strlen(tmp))
+			res[7 - (ft_strlen(tmp) + i++)] = '0';
+	}
+	return (res);
 }
 
 void	sti(t_players *player, byte *map, unsigned int *reg)
@@ -44,7 +66,7 @@ void	sti(t_players *player, byte *map, unsigned int *reg)
 	int					r2;
 	unsigned int		res;
 
-	binary = ft_itoa_base(map[(*player).pos + 1], 2);
+	binary = get_binary(map, player);
 	binary += 2;
 	res = reg[(map[(*player).pos + 2] > 17) ? 0 : map[(*player).pos + 2]];
 	if (ft_strnstr(binary, "10", 2))

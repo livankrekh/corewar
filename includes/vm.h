@@ -13,17 +13,19 @@
 #ifndef VM_H
 # define VM_H
 
+// # if defined(linux) || defined(_WIN32)
+// # include <GL/glut.h>
+// # else
+// # include <GLUT/GLUT.h>
+// # endif
+# include <ncurses.h>
 # include "op.h"
 # include "../libft/libft.h"
-# include <SDL2/SDL.h>
-# include "../SDL2_ttf.framework/Versions/A/Headers/SDL_ttf.h"
 # include <stdlib.h>
 # include <limits.h>
 # include <stdio.h>
 # define RED "\x1b[31m"
 # define END "\033[0m"
-# define true 1;
-# define false 0;
 
 typedef	unsigned char byte;
 typedef	int	t_bool;
@@ -37,7 +39,6 @@ typedef struct			s_players
 	int					num;
 	int					vis_num;
 	int 				pos;
-	struct t_players	*next;
 }						t_players;
 
 typedef struct			s_flags
@@ -52,9 +53,11 @@ typedef struct			s_flags
 // t_flags					*create_flags(void);
 // t_players				*get_players(char **argv, int argc);
 // t_players 				*create_players(void);
-void					vizualize(byte *memory, int size);
+void					vizualize(byte *memory, t_players *players, WINDOW **win1, WINDOW *win);
+void					status_bar(WINDOW **win2, WINDOW *win, t_players *players);
+void					cursor_refresh(WINDOW *win1, t_players *players, byte *map);
 void					zjmp(t_players *player, byte *map);
-void					live(t_players *players, byte map, int count);
+void					live(t_players *players, byte map);
 void					sti(t_players *player, byte *map, unsigned int *reg);
 
 #endif
