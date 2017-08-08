@@ -31,7 +31,7 @@ char	*get_hex(byte val)
 	return (res);
 }
 
-void	cursor_refresh(WINDOW *win1, t_players *players, byte *map)
+void	cursor_refresh(WINDOW *win1, WINDOW *win2, t_players *players, byte *map)
 {
 	int 	x;
 	int 	y;
@@ -48,6 +48,7 @@ void	cursor_refresh(WINDOW *win1, t_players *players, byte *map)
 	init_pair(6, COLOR_WHITE, COLOR_GREEN);
 	init_pair(7, COLOR_WHITE, COLOR_RED);
 	init_pair(8, COLOR_WHITE, COLOR_YELLOW);
+	y = 4;
 	while (players[player - 1].header.name != NULL)
 	{
 		wmove(win1, players[player - 1].pos / max + 1, (players[player - 1].pos % max * 3) + 2);
@@ -55,9 +56,13 @@ void	cursor_refresh(WINDOW *win1, t_players *players, byte *map)
 		wattron(win1, COLOR_PAIR(player + 4) | A_BOLD);
 		wprintw(win1, "%s", tmp);
 		wattroff(win1, COLOR_PAIR(player + 4) | A_BOLD);
+		wmove(win2, y, 23);
+		wprintw(win2, "%d", players[player - 1].live);
+		y += 4;
 		player++;
 		free(tmp);
 	}
 	wrefresh(win1);
+	wrefresh(win2);
 	tmp = NULL;
 }

@@ -74,12 +74,29 @@ void	status_bar(WINDOW **win2, WINDOW *win, t_players *players)
 {
 	int 	max_X;
 	int 	max_Y;
+	int 	y;
+	int 	i;
 
+	i = 0;
+	y = 2;
 	getmaxyx(win, max_Y, max_X);
 	*win2 = newwin(max_Y, max_X * 0.2, 0, max_X * 0.8 + 1);
 	box(*win2, 0, 0);
+	while (players[i].header.name != NULL)
+	{
+		wmove(*win2, y, 2);
+		wprintw(*win2, "Player: ");
+		wattron(*win2, COLOR_PAIR(i + 1) | A_BOLD);
+		wprintw(*win2, "%s", players[i].header.name);
+		wattroff(*win2, COLOR_PAIR(i + 1) | A_BOLD);
+		wmove(*win2, ++y, 2);
+		wprintw(*win2, "Player number: %d", players[i].num);
+		wmove(*win2, ++y, 2);
+		wprintw(*win2, "Player live counter: %d", players[i].live);
+		y += 2;
+		i++;
+	}
 	wrefresh(*win2);
-	players = NULL;
 }
 
 void	vizualize(byte *memory, t_players *players, WINDOW **win1, WINDOW *win)

@@ -31,8 +31,8 @@ void	live(t_players *players, byte map)
 	i = 0;
 	while (players[i].header.name != NULL)
 	{
-		if (map == players[i].num)
-			players[i].live++;
+		if (map == players[i].num * -1)
+			players[i].live += 1;
 		i++;
 	}
 }
@@ -59,7 +59,7 @@ char	*get_binary(byte *map, t_players *player)
 	return (res);
 }
 
-void	sti(t_players *player, byte *map, unsigned int *reg)
+void	sti(t_players *player, byte *map)
 {
 	char				*binary;
 	int					r1;
@@ -68,7 +68,7 @@ void	sti(t_players *player, byte *map, unsigned int *reg)
 
 	binary = get_binary(map, player);
 	binary += 2;
-	res = reg[(map[(*player).pos + 2] > 17) ? 0 : map[(*player).pos + 2]];
+	res = (*player).reg[(map[(*player).pos + 2] > 17) ? 0 : map[(*player).pos + 2]];
 	if (ft_strnstr(binary, "10", 2))
 		r1 = map[(*player).pos + 3] * 256 + map[(*player).pos + 4];
 	else
@@ -80,7 +80,7 @@ void	sti(t_players *player, byte *map, unsigned int *reg)
 	else
 		r2 = map[(*player).pos + (map[(*player).pos + 5] * 256 + map[(*player).pos + 6])] * 256
 			+ map[(*player).pos + (map[(*player).pos + 5] * 256 + map[(*player).pos + 6]) + 1];
-	(*player).pos += r1 + r2;
+	(*player).pos += r1 + r2 - 1;
 	map[(*player).pos + 1] = res / (256 * 256 * 256);
 	map[(*player).pos + 2] = res / (256 * 256);
 	map[(*player).pos + 3] = res / 256;
