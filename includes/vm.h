@@ -39,7 +39,8 @@ typedef struct			s_players
 	int					num;
 	int					vis_num;
 	int 				pos;
-	unsigned char		*reg;
+	unsigned int		*reg;
+	int					stop;
 }						t_players;
 
 typedef struct			s_flags
@@ -54,11 +55,14 @@ typedef struct			s_flags
 // t_flags					*create_flags(void);
 // t_players				*get_players(char **argv, int argc);
 // t_players 				*create_players(void);
+int						translate(byte r1, byte r2, byte r3, byte r4);
 void					vizualize(byte *memory, t_players *players, WINDOW **win1, WINDOW *win);
 void					status_bar(WINDOW **win2, WINDOW *win, t_players *players);
 void					cursor_refresh(WINDOW *win1, WINDOW *win2, t_players *players, byte *map);
 void					zjmp(t_players *player, byte *map);
-void					live(t_players *players, byte map);
+void					live(t_players *players, byte *map, t_players *player);
 void					sti(t_players *player, byte *map);
+void					and_cor(t_players *player, byte *map);
+char					*get_binary(byte *map, t_players *player);
 
 #endif
