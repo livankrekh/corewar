@@ -64,5 +64,10 @@ void					live(t_players *players, byte *map, t_players *player);
 void					sti(t_players *player, byte *map);
 void					and_cor(t_players *player, byte *map);
 char					*get_binary(byte *map, t_players *player);
+void					ld(t_players *player, byte *map);
+void					st(t_players *player, byte *map);
+void					add(t_players *player, byte *map);
+void					sub(t_players *player, byte *map);
+void					ldi(t_players *player, byte *map);
 
 #endif

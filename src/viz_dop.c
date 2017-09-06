@@ -13,6 +13,14 @@
 #include "../includes/vm.h"
 #include "../includes/op.h"
 
+void	refresh_map(WINDOW *win1, byte *map)
+{
+	int 	i;
+	int 	x;
+	int 	y;
+	char	*tmp;
+}
+
 char	*get_hex(byte val)
 {
 	char	*tmp;

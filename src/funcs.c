@@ -14,6 +14,11 @@
 #include "../includes/op.h"
 #include <ncurses.h>
 
+int 	translate(byte r1, byte r2, byte r3, byte r4)
+{
+	return (r1 * 256 * 256 * 256 + r2 * 256 * 256 + r3 * 256 + r4);
+}
+
 void	and_cor(t_players *player, byte *map)
 {
 	int r1;
@@ -114,6 +119,12 @@ char	*get_binary(byte *map, t_players *player)
 		while (i < 8 - (int)ft_strlen(tmp))
 			res[7 - (ft_strlen(tmp) + i++)] = '0';
 	}
+	else
+	{
+		free(res);
+		return (tmp);
+	}
+	free(tmp);
 	return (res);
 }
 
@@ -151,7 +162,6 @@ void	sti(t_players *player, byte *map)
 	}
 	binary -= 4;
 	free(binary);
-	// printf("%d\n", (*player).reg[map[(*player).pos + 2] - 1]);
 	map[(*player).pos + r1 + r2] = (*player).reg[map[(*player).pos + 2] - 1] / 0x1000000;
 	map[(*player).pos + r1 + r2 + 1] = (*player).reg[map[(*player).pos + 2] - 1] / 0x10000;
 	map[(*player).pos + r1 + r2 + 2] = (*player).reg[map[(*player).pos + 2] - 1] / 0x100;
@@ -160,33 +170,114 @@ void	sti(t_players *player, byte *map)
 	(*player).stop = 25;
 }
 
-// void	sti(t_players *player, byte *map)
-// {
-// 	char				*binary;
-// 	int					r1;
-// 	int					r2;
-// 	unsigned short int		res;
+void	ldi(t_players *player, byte *map)
+{
+	int		r1;
+	int		r2;
+	int		posit;
+	char	*binary;
 
-// 	binary = get_binary(map, player);
-// 	binary += 2;
-// 	res = (*player).reg[(map[(*player).pos + 2] > 17) ? 0 : map[(*player).pos + 2]];
-// 	if (ft_strnstr(binary, "10", 2))
-// 		r1 = map[(*player).pos + 3] * 256 + map[(*player).pos + 4];
-// 	else
-// 		r1 = map[(*player).pos + (map[(*player).pos + 3] * 256 + map[(*player).pos + 4])] * 256
-// 			+ map[(*player).pos + (map[(*player).pos + 3] * 256 + map[(*player).pos + 4]) + 1];
-// 	binary += 2;
-// 	if (ft_strnstr(binary, "10", 2))
-// 		r2 = map[(*player).pos + 5] * 256 + map[(*player).pos + 6];
-// 	else
-// 		r2 = map[(*player).pos + (map[(*player).pos + 5] * 256 + map[(*player).pos + 6])] * 256
-// 			+ map[(*player).pos + (map[(*player).pos + 5] * 256 + map[(*player).pos + 6]) + 1];
-// 	(*player).pos += r1 + r2 - 1;
-// 	printf("%d\n", res);
-// 	map[(*player).pos + 1] = res / (256 * 256 * 256);
-// 	map[(*player).pos + 2] = res / (256 * 256);
-// 	map[(*player).pos + 3] = res / 256;
-// 	map[(*player).pos + 4] = res % (256);
-// 	binary -= 4;
-// 	free(binary);
-// }
+	r1 = 0;
+	r2 = 0;
+	posit = 1;
+	binary = get_binary(map, player);
+	if (ft_strnstr(binary, "01", 2))
+		r1 = (*player).reg[map[(*player).pos + posit++ + 1]];
+	else if (ft_strnstr(binary, "10", 2))
+	{
+		r1 = translate(0, 0, map[(*player).pos + posit + 1], map[(*player).pos + posit + 2]);
+		posit += 2;
+	}
+	else if (ft_strnstr(binary, "11", 2))
+	{
+		r1 = translate(0, 0, map[(*player).pos + translate(0, 0, map[(*player).pos + posit + 1], map[(*player).pos + posit + 2])], map[(*player).pos + translate(0, 0, map[(*player).pos + posit + 1], map[(*player).pos + posit + 2])] + 1);
+		posit += 2;
+	}
+	binary += 2;
+	if (ft_strnstr(binary, "10", 2))
+	{
+		r2 = translate(0, 0, map[(*player).pos + posit + 1], map[(*player).pos + posit + 2]);
+		posit += 2;
+	}
+	else if (ft_strnstr(binary, "01", 2))
+		r2 = (*player).reg[map[(*player).pos + posit++ + 1]];
+	binary -= 2;
+	free(binary);
+	(*player).reg[map[(*player).pos + posit++ + 1]] = translate(map[(*player).pos + r1 + r2 + 1 % IDX_MOD], map[(*player).pos + r1 + r2 + 2 % IDX_MOD], map[(*player).pos + r1 + r2 + 3 % IDX_MOD], map[(*player).pos + r1 + r2 + 4 % IDX_MOD]);
+	(*player).pos += posit + 2;
+}
+
+void	sub(t_players *player, byte *map)
+{
+	int		r1;
+	int		r2;
+
+	r1 = (*player).reg[map[(*player).pos + 2]];
+	r2 = (*player).reg[map[(*player).pos + 3]];
+	(*player).reg[map[(*player).pos + 4]] = r1 - r2;
+	(*player).pos += 5;
+	(*player).stop = 10;
+}
+
+void	add(t_players *player, byte *map)
+{
+	int		r1;
+	int		r2;
+
+	r1 = (*player).reg[map[(*player).pos + 2]];
+	r2 = (*player).reg[map[(*player).pos + 3]];
+	(*player).reg[map[(*player).pos + 4]] = r1 + r2;
+	(*player).pos += 5;
+	(*player).stop = 10;
+}
+
+void	st(t_players *player, byte *map)
+{
+	int		r2;
+	char	*binary;
+	int		posit;
+
+	r2 = 0;
+	posit = 2;
+	binary = get_binary(map, player);
+	binary += 2;
+	if (ft_strnstr(binary, "11", 2))
+	{
+		r2 = translate(0, 0, map[(*player).pos + translate(0, 0, map[(*player).pos + posit + 1], map[(*player).pos + posit + 2]) + 1], map[(*player).pos + translate(0, 0, map[(*player).pos + posit + 1], map[(*player).pos + posit + 2]) + 2]);
+		posit += 2;
+	}
+	else if (ft_strnstr(binary, "01", 2))
+		r2 = (*player).reg[map[(*player).pos + posit++ + 1]];
+	binary -= 2;
+	free(binary);
+	(*player).reg[map[(*player).pos + 2]] = r2;
+	(*player).pos += posit + 1;
+	(*player).stop = 5;
+}
+
+void	ld(t_players *player, byte *map)
+{
+	char	*binary;
+	int		r1;
+	int		posit;
+
+	r1 = 0;
+	posit = 1;
+	binary = get_binary(map, player);
+	if (ft_strnstr(binary, "10", 2))
+	{
+		r1 = translate(map[(*player).pos + posit + 1], map[(*player).pos + posit + 2], map[(*player).pos + posit + 3], map[(*player).pos + posit + 4]);
+		posit += 4;
+	}
+	else if (ft_strnstr(binary, "11", 2))
+	{
+		r1 = translate(0, 0, map[(*player).pos + translate(0, 0, map[(*player).pos + posit + 1], map[(*player).pos + posit + 2]) + 1], map[(*player).pos + translate(0, 0, map[(*player).pos + posit + 1], map[(*player).pos + posit + 2]) + 2]);
+		posit += 2;
+	}
+	free(binary);
+	(*player).reg[map[(*player).pos + posit++ + 1]] = r1 % IDX_MOD;
+	(*player).pos += posit + 1;
+	(*player).stop = 5;
+}
+
+
