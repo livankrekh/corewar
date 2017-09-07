@@ -158,7 +158,7 @@ int		main(void)
 	t_players		players[5];
 
 	players[0].header.name = "zork";
-	players[0].comands = "0664010000000002091002";
+	players[0].comands = "0ae400020001020370020014";
 	players[0].num = -1;
 	players[0].reg = (unsigned int*)malloc(sizeof(unsigned int) * 16);
 	players[0].live = 0;

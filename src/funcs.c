@@ -208,8 +208,8 @@ void	ldi(t_players *player, byte *map)
 		r2 = (*player).reg[map[(*player).pos + posit++ + 1]];
 	binary -= 2;
 	free(binary);
-	(*player).reg[map[(*player).pos + posit++ + 1]] = translate(map[(*player).pos + r1 + r2 + 1 % IDX_MOD], map[(*player).pos + r1 + r2 + 2 % IDX_MOD], map[(*player).pos + r1 + r2 + 3 % IDX_MOD], map[(*player).pos + r1 + r2 + 4 % IDX_MOD]);
-	(*player).pos += posit + 2;
+	(*player).reg[map[(*player).pos + posit++ + 1] - 1] = translate(map[(*player).pos + r1 + r2 % IDX_MOD], map[(*player).pos + r1 + r2 + 1 % IDX_MOD], map[(*player).pos + r1 + r2 + 2 % IDX_MOD], map[(*player).pos + r1 + r2 + 3 % IDX_MOD]);
+	(*player).pos += posit + 1;
 }
 
 void	sub(t_players *player, byte *map)
