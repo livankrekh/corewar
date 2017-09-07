@@ -13,14 +13,6 @@
 #include "../includes/vm.h"
 #include "../includes/op.h"
 
-void	refresh_map(WINDOW *win1, byte *map)
-{
-	int 	i;
-	int 	x;
-	int 	y;
-	char	*tmp;
-}
-
 char	*get_hex(byte val)
 {
 	char	*tmp;
@@ -37,6 +29,45 @@ char	*get_hex(byte val)
 		return (tmp);
 	free(tmp);
 	return (res);
+}
+
+void	refresh_map(WINDOW *win, byte *map)
+{
+	int 	i;
+	int 	x;
+	int 	y;
+	char	*tmp;
+	int 	max_X;
+
+	i = 0;
+	y = 1;
+	x = 2;
+
+	max_X = 0;
+	getmaxyx(win, y, max_X);
+	init_pair(1, COLOR_BLUE, COLOR_BLACK);
+	init_pair(2, COLOR_GREEN, COLOR_BLACK);
+	init_pair(3, COLOR_RED, COLOR_BLACK);
+	init_pair(4, COLOR_YELLOW, COLOR_BLACK);
+	wmove(win, 1, 2);
+	while (i < MEM_SIZE)
+	{
+		getyx(win, y, x);
+		if (x + 4 >= max_X)
+			wmove(win, ++y, 2);
+		if (map[i] != 0)
+		{
+			tmp = get_hex(map[i]);
+			wattron(win, COLOR_PAIR(1));
+			wprintw(win, "%s", tmp);
+			wattroff(win, COLOR_PAIR(1));
+			wprintw(win, " ");
+			free(tmp);
+		}
+		else
+			wprintw(win, "00 ");
+		i++;
+	}
 }
 
 void	cursor_refresh(WINDOW *win1, WINDOW *win2, t_players *players, byte *map)

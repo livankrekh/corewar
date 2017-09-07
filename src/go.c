@@ -14,6 +14,13 @@
 #include "../includes/op.h"
 #include <unistd.h>
 
+void	get_stop(t_players *player, byte *map)
+{
+	int 	stop[16] = {10, 5, 5, 10, 10, 6, 6, 6, 20, 25, 25, 800, 10, 50, 1000, 2};
+	if (map[(*player).pos] > 0 && map[(*player).pos] <= 16)
+		(*player).stop = stop[map[(*player).pos] - 1];
+}
+
 void	delete_split(char ***split)
 {
 	int		i;
@@ -64,7 +71,7 @@ byte	*get_map(t_players *players, int count)
 
 void	get_command(t_players *players, byte *map)
 {
-	int i;
+	int 	i;
 
 	i = 0;
 	while (players[i].header.name != NULL)
@@ -82,16 +89,27 @@ void	get_command(t_players *players, byte *map)
 			else if (map[players[i].pos] == 5)
 				sub(&(players[i]), map);
 			else if (map[players[i].pos] == 6)
-				and_cor(&(players[i]), map);
+				and_xor(&(players[i]), map, 'a');
+			else if (map[players[i].pos] == 7)
+				and_xor(&(players[i]), map, 'o');
+			else if (map[players[i].pos] == 8)
+				and_xor(&(players[i]), map, 'x');
 			else if (map[players[i].pos] == 9)
 				zjmp(&(players[i]), map);
+			else if (map[players[i].pos] == 10)
+				ldi(&(players[i]), map);
 			else if (map[players[i].pos] == 11)
 				sti(&(players[i]), map);
+			else if (map[players[i].pos] == 13)
+				lld(&(players[i]), map);
+			else if (map[players[i].pos] == 14)
+				lldi(&(players[i]), map);
 			else
 			{
 				players[i].pos += 1;
 				players[i].pos = players[i].pos % MEM_SIZE;
 			}
+			get_stop(&(players[i]), map);
 		}
 		else
 			players[i].stop -= 1;
@@ -119,13 +137,15 @@ void	go_vm(t_players *players, int count)
 	getch();
 	cursor_refresh(win1, win2, players, map);
 	getch();
+	while (players[i].header.name != NULL)
+		get_stop(&(players[i++]), map);
 	while (1)
 	{
 		get_command(players, map);
 		refresh_map(win1, map);
 		cursor_refresh(win1, win2, players, map);
 		// wrefresh(win1);
-		// sleep(1);
+		usleep(100000);
 	}
 	delwin(win1);
 	delwin(win2);
@@ -138,7 +158,7 @@ int		main(void)
 	t_players		players[5];
 
 	players[0].header.name = "zork";
-	players[0].comands = "0290000000000203700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d301000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000109ff2e";
+	players[0].comands = "0664010000000002091002";
 	players[0].num = -1;
 	players[0].reg = (unsigned int*)malloc(sizeof(unsigned int) * 16);
 	players[0].live = 0;
@@ -146,6 +166,16 @@ int		main(void)
 	ft_bzero(players[0].reg, 16);
 	players[0].reg[0] = -1;
 	players[0].stop = 0;
+	players[0].carry = 0;
+	// players[0].header.name = "big_zork";
+	// players[0].comands = "0290000000000203700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d301000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000109ff2e";
+	// players[0].num = -1;
+	// players[0].reg = (unsigned int*)malloc(sizeof(unsigned int) * 16);
+	// players[0].live = 0;
+	// players[0].live_amount = 0;
+	// ft_bzero(players[0].reg, 16);
+	// players[0].reg[0] = -1;
+	// players[0].stop = 0;
 	// players[0].header.name = "zork";
 	// players[0].comands = "0b6801000f00010664010000000001010000000109fffb";
 	// players[0].num = -1;

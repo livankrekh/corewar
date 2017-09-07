@@ -41,6 +41,7 @@ typedef struct			s_players
 	int 				pos;
 	unsigned int		*reg;
 	int					stop;
+	int					carry;
 }						t_players;
 
 typedef struct			s_flags
@@ -62,12 +63,15 @@ void					cursor_refresh(WINDOW *win1, WINDOW *win2, t_players *players, byte *ma
 void					zjmp(t_players *player, byte *map);
 void					live(t_players *players, byte *map, t_players *player);
 void					sti(t_players *player, byte *map);
-void					and_cor(t_players *player, byte *map);
+void					and_xor(t_players *player, byte *map, char flag);
 char					*get_binary(byte *map, t_players *player);
 void					ld(t_players *player, byte *map);
 void					st(t_players *player, byte *map);
 void					add(t_players *player, byte *map);
 void					sub(t_players *player, byte *map);
 void					ldi(t_players *player, byte *map);
+void					lldi(t_players *player, byte *map);
+void					lld(t_players *player, byte *map);
+void					refresh_map(WINDOW *win1, byte *map);
 
 #endif
