@@ -27,10 +27,11 @@
 # define RED "\x1b[31m"
 # define END "\033[0m"
 
-typedef	unsigned char byte;
-typedef	int	t_bool;
+typedef	unsigned char 		byte;
+typedef	int					t_bool;
+typedef struct s_players 	t_players;
 
-typedef struct			s_players
+struct					s_players
 {
 	header_t			header;
 	char				*comands;
@@ -42,7 +43,9 @@ typedef struct			s_players
 	unsigned int		*reg;
 	int					stop;
 	int					carry;
-}						t_players;
+	int					*live_ptr;
+	t_players			*next;
+};
 
 typedef struct			s_flags
 {
@@ -72,6 +75,8 @@ void					sub(t_players *player, byte *map);
 void					ldi(t_players *player, byte *map);
 void					lldi(t_players *player, byte *map);
 void					lld(t_players *player, byte *map);
+void					fork_func(t_players *player, byte *map, t_players **stack);
+void					lfork_func(t_players *player, byte *map, t_players **stack);
 void					refresh_map(WINDOW *win1, byte *map);
 
 #endif

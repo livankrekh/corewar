@@ -37,7 +37,7 @@ $(NAME): $(OBJ)
 	ranlib $(NAME)
 
 %.o: %.c
-	$(CC) $(F) -o $@ -c $<
+	$(CC) -o $@ -c $< $(F)
 
 clean:
 	rm -f $(OBJ)

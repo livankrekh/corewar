@@ -69,7 +69,7 @@ byte	*get_map(t_players *players, int count)
 	return (map);
 }
 
-void	get_command(t_players *players, byte *map)
+void	get_command(t_players *players, byte *map, t_players **stack)
 {
 	int 	i;
 
@@ -100,10 +100,14 @@ void	get_command(t_players *players, byte *map)
 				ldi(&(players[i]), map);
 			else if (map[players[i].pos] == 11)
 				sti(&(players[i]), map);
+			else if (map[players[i].pos] == 12)
+				fork_func(&(players[i]), map, stack);
 			else if (map[players[i].pos] == 13)
 				lld(&(players[i]), map);
 			else if (map[players[i].pos] == 14)
 				lldi(&(players[i]), map);
+			else if (map[players[i].pos] == 15)
+				lfork_func(&(players[i]), map, stack);
 			else
 			{
 				players[i].pos += 1;
@@ -120,13 +124,15 @@ void	get_command(t_players *players, byte *map)
 
 void	go_vm(t_players *players, int count)
 {
-	byte	*map;
-	int		i;
-	WINDOW	*win;
-	WINDOW	*win1;
-	WINDOW	*win2;
+	byte		*map;
+	t_players	*stack;
+	int			i;
+	WINDOW		*win;
+	WINDOW		*win1;
+	WINDOW		*win2;
 
 	i = 0;
+	stack = NULL;
 	win1 = NULL;
 	win2 = NULL;
 	win = initscr();
@@ -141,7 +147,7 @@ void	go_vm(t_players *players, int count)
 		get_stop(&(players[i++]), map);
 	while (1)
 	{
-		get_command(players, map);
+		get_command(players, map, &stack);
 		refresh_map(win1, map);
 		cursor_refresh(win1, win2, players, map);
 		// wrefresh(win1);
@@ -157,16 +163,16 @@ int		main(void)
 {
 	t_players		players[5];
 
-	players[0].header.name = "zork";
-	players[0].comands = "0ae400020001020370020014";
-	players[0].num = -1;
-	players[0].reg = (unsigned int*)malloc(sizeof(unsigned int) * 16);
-	players[0].live = 0;
-	players[0].live_amount = 0;
-	ft_bzero(players[0].reg, 16);
-	players[0].reg[0] = -1;
-	players[0].stop = 0;
-	players[0].carry = 0;
+	// players[0].header.name = "zork";
+	// players[0].comands = "0ae400020001020370020014";
+	// players[0].num = -1;
+	// players[0].reg = (unsigned int*)malloc(sizeof(unsigned int) * 16);
+	// players[0].live = 0;
+	// players[0].live_amount = 0;
+	// ft_bzero(players[0].reg, 16);
+	// players[0].reg[0] = -1;
+	// players[0].stop = 0;
+	// players[0].carry = 0;
 	// players[0].header.name = "big_zork";
 	// players[0].comands = "0290000000000203700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d301000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000109ff2e";
 	// players[0].num = -1;
@@ -176,15 +182,15 @@ int		main(void)
 	// ft_bzero(players[0].reg, 16);
 	// players[0].reg[0] = -1;
 	// players[0].stop = 0;
-	// players[0].header.name = "zork";
-	// players[0].comands = "0b6801000f00010664010000000001010000000109fffb";
-	// players[0].num = -1;
-	// players[0].reg = (unsigned int*)malloc(sizeof(unsigned int) * 16);
-	// players[0].live = 0;
-	// players[0].live_amount = 0;
-	// ft_bzero(players[0].reg, 16);
-	// players[0].reg[0] = -1;
-	// players[0].stop = 0;
+	players[0].header.name = "zork";
+	players[0].comands = "0b6801000f00010664010000000001010000000109fffb";
+	players[0].num = -1;
+	players[0].reg = (unsigned int*)malloc(sizeof(unsigned int) * 16);
+	players[0].live = 0;
+	players[0].live_amount = 0;
+	ft_bzero(players[0].reg, 16);
+	players[0].reg[0] = -1;
+	players[0].stop = 0;
 	// players[0].header.name = "helltrain";
 	// players[0].comands = "0b6801018700010b6801018f00010b6801019000010b6801005700010b6801018d00010b6801018600090b6801017f00110b680101a500010b6801018900020b680101cd00010b680101c600090b680101980001029000000000100c0143029000000000020290000000001001004acdc7037002ffe8037002ffdf037002ffd6037002ffcd037002ffc4037002ffbb037002ffb2037002ffa9037002ffa0037002ff97037002ff8e037002ff85037002ff7c037002ff73037002ff6a037002ff61037002ff58037002ff4f037002ff46037002ff3d037002ff34037002ff2b037002ff22037002ff19037002ff10037002ff07037002fefe037002fef5037002feec037002fee3037002feda037002fed1037002fec8037002febf037002feb6037002fead037002fea4037002fe9b037002fe92037002fe89037002fe80037002fe77037002fe6e037002fe65037002fe5c037002fe53037002fe4a037002fe41037002fe38037002fe2f037002fe26037002fe1d037002fe14037002fe0b037002fe0209fee8010040b03f0cfffb02900000000010010034867e09fffb010041eca70900030cfff80100420e4a0c005e010033e5a30c002f0100460bcf0c00840290000000000202900f037003030290000000001001004b3b770290000000001009007801004242460cfe7402900f03700302029017037003030290000000001002900000000010090051010040aea50cff9801003e75620cff6e0290ffff01000202901a0370030302900000000010029000000000100290000000001009001b029003700200020290130370030302900000000010090003037002000f037003ffff0100000000";
 	// players[0].num = -2;

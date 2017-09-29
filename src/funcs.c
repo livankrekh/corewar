@@ -19,6 +19,68 @@ int 	translate(byte r1, byte r2, byte r3, byte r4)
 	return (r1 * 256 * 256 * 256 + r2 * 256 * 256 + r3 * 256 + r4);
 }
 
+void	fork_func(t_players *player, byte *map, t_players **stack)
+{
+	int			dir;
+	t_players	*tmp;
+
+	dir = translate(0, 0, map[player->pos + 1], map[player->pos + 2]) % IDX_MOD;
+	if (*stack == NULL)
+	{
+		*stack = (t_players*)malloc(sizeof(t_players));
+		tmp = *stack;
+	}
+	else
+	{
+		tmp = *stack;
+		while (tmp->next != NULL)
+			tmp = tmp->next;
+		tmp->next = (t_players*)malloc(sizeof(t_players));
+		tmp = tmp->next;
+	}
+	tmp->header.name = "fork";
+	tmp->comands = NULL;
+	tmp->reg = player->reg;
+	if (ft_strnstr(player->header.name, "fork", 4))
+		tmp->live_ptr = player->live_ptr;
+	else
+		tmp->live_ptr = &(player->live);
+	tmp->next = NULL;
+	tmp->pos = player->pos + dir;
+	tmp->stop = 0;
+	tmp->carry = player->carry;
+}
+
+void	lfork_func(t_players *player, byte *map, t_players **stack)
+{
+	int			dir;
+	t_players	*tmp;
+
+	dir = translate(0, 0, map[player->pos + 1], map[player->pos + 2]);
+	if (*stack == NULL)
+	{
+		*stack = (t_players*)malloc(sizeof(t_players));
+		tmp = *stack;
+	}
+	else
+	{
+		tmp = *stack;
+		while (tmp->next != NULL)
+			tmp = tmp->next;
+		tmp->next = (t_players*)malloc(sizeof(t_players));
+		tmp = tmp->next;
+	}
+	tmp->header.name = "fork";
+	tmp->comands = NULL;
+	tmp->reg = player->reg;
+	tmp->live_ptr = &(player->live);
+	tmp->next = NULL;
+	tmp->pos = player->pos + dir;
+	tmp->stop = 0;
+	tmp->carry = player->carry;
+	tmp->num = 0;
+}
+
 void	and_xor(t_players *player, byte *map, char flag)
 {
 	int r1;
@@ -101,7 +163,9 @@ void	live(t_players *players, byte *map, t_players *player)
 		}
 		i++;
 	}
-	if (players[i].header.name == NULL)
+	if (players[i].header.name == NULL && ft_strnstr(player->header.name, "fork", 4))
+		*(player->live_ptr) += 1;
+	else if (players[i].header.name == NULL)
 		(*player).live += 1;
 	(*player).pos += 5;
 }
