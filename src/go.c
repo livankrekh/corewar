@@ -69,110 +69,203 @@ byte	*get_map(t_players *players, int count)
 	return (map);
 }
 
-void	get_command(t_players *players, byte *map, t_players **stack)
+void	get_command(t_players *player, byte *map, t_players **stack, t_players *players)
 {
-	int 	i;
-
-	i = 0;
-	while (players[i].header.name != NULL)
+	if (player->stop == 0)
 	{
-		if (players[i].stop == 0)
-		{
-			if (map[players[i].pos] == 1)
-				live(players, &(map[players[i].pos + 1]), &(players[i]));
-			else if (map[players[i].pos] == 2)
-				ld(&(players[i]), map);
-			else if (map[players[i].pos] == 3)
-				st(&(players[i]), map);
-			else if (map[players[i].pos] == 4)
-				add(&(players[i]), map);
-			else if (map[players[i].pos] == 5)
-				sub(&(players[i]), map);
-			else if (map[players[i].pos] == 6)
-				and_xor(&(players[i]), map, 'a');
-			else if (map[players[i].pos] == 7)
-				and_xor(&(players[i]), map, 'o');
-			else if (map[players[i].pos] == 8)
-				and_xor(&(players[i]), map, 'x');
-			else if (map[players[i].pos] == 9)
-				zjmp(&(players[i]), map);
-			else if (map[players[i].pos] == 10)
-				ldi(&(players[i]), map);
-			else if (map[players[i].pos] == 11)
-				sti(&(players[i]), map);
-			else if (map[players[i].pos] == 12)
-				fork_func(&(players[i]), map, stack);
-			else if (map[players[i].pos] == 13)
-				lld(&(players[i]), map);
-			else if (map[players[i].pos] == 14)
-				lldi(&(players[i]), map);
-			else if (map[players[i].pos] == 15)
-				lfork_func(&(players[i]), map, stack);
-			else
-			{
-				players[i].pos += 1;
-				players[i].pos = players[i].pos % MEM_SIZE;
-			}
-			get_stop(&(players[i]), map);
-		}
+		if (map[player->pos] == 1)
+			live(players, &(map[player->pos + 1]), player);
+		else if (map[player->pos] == 2)
+			ld(player, map);
+		else if (map[player->pos] == 3)
+			st(player, map);
+		else if (map[player->pos] == 4)
+			add(player, map);
+		else if (map[player->pos] == 5)
+			sub(player, map);
+		else if (map[player->pos] == 6)
+			and_xor(player, map, 'a');
+		else if (map[player->pos] == 7)
+			and_xor(player, map, 'o');
+		else if (map[player->pos] == 8)
+			and_xor(player, map, 'x');
+		else if (map[player->pos] == 9)
+			zjmp(player, map);
+		else if (map[player->pos] == 10)
+			ldi(player, map);
+		else if (map[player->pos] == 11)
+			sti(player, map);
+		else if (map[player->pos] == 12)
+			fork_func(player, map, stack);
+		else if (map[player->pos] == 13)
+			lld(player, map);
+		else if (map[player->pos] == 14)
+			lldi(player, map);
+		else if (map[player->pos] == 15)
+			lfork_func(player, map, stack);
+		else if (map[player->pos] == 16)
+			aff(player, map);
 		else
-			players[i].stop -= 1;
+		{
+			player->pos += 1;
+			players->pos = players->pos % MEM_SIZE;
+		}
+		get_stop(player, map);
+	}
+	else
+		player->stop -= 1;
+}
+
+int 	get_alive_players(t_players *players)
+{
+	int 		res;
+	int 		i;
+	t_players	*tmp;
+
+	res = 0;
+	i = 0;
+	tmp = players;
+	while (tmp[i].header.name != NULL)
+	{
+		if (tmp[i].comands != NULL)
+			res++;
 		i++;
 	}
-	map[2] = map[2];
+	return (res);
+}
+
+void	end_game(t_players *players, byte *map, t_players **stack)
+{
+	int 		i;
+	t_players	*tmp;
+	t_players	*tmp2;
+
+	i = 0;
+	free(map);
+	map = NULL;
+	tmp = *stack;
+	while (tmp != NULL)
+	{
+		tmp2 = tmp->next;
+		free(tmp);
+		tmp = tmp2;
+	}
+	*stack = NULL;
+	while (players[i].comands == NULL && players[i].header.name != NULL)
+		i++;
+	ft_putstr("Contestant #");
+	ft_putnbr(players[i].num * -1);
+	ft_putstr(", '");
+	ft_putstr(players[i].header.name);
+	ft_putstr("', has won!\n");
+	exit(1);
 }
 
 void	go_vm(t_players *players, int count)
 {
 	byte		*map;
 	t_players	*stack;
+	t_players	*tmp;
 	int			i;
-	WINDOW		*win;
-	WINDOW		*win1;
-	WINDOW		*win2;
+	int 		cycles;
+	int 		DIE;
+	int 		cycles_test;
+	// WINDOW		*win;
+	// WINDOW		*win1;
+	// WINDOW		*win2;
 
 	i = 0;
+	cycles = 0;
+	cycles_test = 0;
 	stack = NULL;
-	win1 = NULL;
-	win2 = NULL;
-	win = initscr();
+	// win1 = NULL;
+	// win2 = NULL;
+	DIE = CYCLE_TO_DIE;
+	// win = initscr();
 	map = get_map(players, count);
-	vizualize(map, players, &win1, win);
-	status_bar(&win2, win, players);
-	curs_set(0);
-	getch();
-	cursor_refresh(win1, win2, players, map);
-	getch();
+	// vizualize(map, players, &win1, win);
+	// status_bar(&win2, win, players);
+	// curs_set(0);
+	// getch();
+	// cursor_refresh(win1, win2, players, map);
+	// getch();
 	while (players[i].header.name != NULL)
 		get_stop(&(players[i++]), map);
 	while (1)
 	{
-		get_command(players, map, &stack);
-		refresh_map(win1, map);
-		cursor_refresh(win1, win2, players, map);
+		i = 0;
+		while (players[i].header.name != NULL)
+			if (players[i].comands != NULL)
+				get_command(&(players[i++]), map, &stack, players);
+		tmp = stack;
+		while (tmp != NULL)
+			get_command(tmp, map, &stack, players);
+		i = 0;
+		if (cycles_test >= DIE)
+		{
+			while (players[i].header.name != NULL)
+			{
+				if (get_alive_players(players) == 1)
+					end_game(players, map, &stack);
+				if (players[i].live + players[i].live_amount == 0)
+				{
+					// free(players[i].comands);
+					players[i].comands = NULL;
+				}
+				if (players[i].live + players[i].live_amount >= NBR_LIVE)
+					DIE -= CYCLE_DELTA; 
+				players[i].live = 0;
+				players[i++].live_amount = 0;
+			}
+			cycles_test = 0;
+		}
+		// refresh_map(win1, map);
+		// cursor_refresh(win1, win2, players, map);
 		// wrefresh(win1);
-		usleep(100000);
+		// usleep(1000);
+		cycles++;
+		cycles_test++;
 	}
-	delwin(win1);
-	delwin(win2);
-	delwin(win);
-	endwin();
+	// delwin(win1);
+	// delwin(win2);
+	// delwin(win);
+	// endwin();
+}
+
+void	start_vm(t_players **tmp, int count)
+{
+	t_players	players[count + 1];
+	int 		i;
+
+	i = 0;
+	while (tmp[i] != NULL)
+	{
+		players[i] = *(tmp[i]);
+		free(tmp[i]);
+		tmp[i] = NULL;
+		i++;
+	}
+	players[count].header.name = NULL;
+	players[count].comands = NULL;
+	free(tmp);
+	tmp = NULL;
+	go_vm(players, count);
 }
 
 int		main(void)
 {
-	t_players		players[5];
+	t_players		players[3];
 
-	// players[0].header.name = "zork";
-	// players[0].comands = "0ae400020001020370020014";
-	// players[0].num = -1;
-	// players[0].reg = (unsigned int*)malloc(sizeof(unsigned int) * 16);
-	// players[0].live = 0;
-	// players[0].live_amount = 0;
-	// ft_bzero(players[0].reg, 16);
-	// players[0].reg[0] = -1;
-	// players[0].stop = 0;
-	// players[0].carry = 0;
+	players[0].header.name = "zork2";
+	players[0].comands = "0ae400020001020370020014";
+	players[0].num = -1;
+	players[0].reg = (unsigned int*)malloc(sizeof(unsigned int) * 16);
+	players[0].live = 0;
+	players[0].live_amount = 0;
+	ft_bzero(players[0].reg, 16);
+	players[0].reg[0] = -1;
+	players[0].stop = 0;
+	players[0].carry = 0;
 	// players[0].header.name = "big_zork";
 	// players[0].comands = "0290000000000203700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d303700100d301000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000101000000010100000001010000000109ff2e";
 	// players[0].num = -1;
@@ -182,15 +275,15 @@ int		main(void)
 	// ft_bzero(players[0].reg, 16);
 	// players[0].reg[0] = -1;
 	// players[0].stop = 0;
-	players[0].header.name = "zork";
-	players[0].comands = "0b6801000f00010664010000000001010000000109fffb";
-	players[0].num = -1;
-	players[0].reg = (unsigned int*)malloc(sizeof(unsigned int) * 16);
-	players[0].live = 0;
-	players[0].live_amount = 0;
-	ft_bzero(players[0].reg, 16);
-	players[0].reg[0] = -1;
-	players[0].stop = 0;
+	players[1].header.name = "zork";
+	players[1].comands = "0b6801000f00010664010000000001010000000109fffb";
+	players[1].num = -1;
+	players[1].reg = (unsigned int*)malloc(sizeof(unsigned int) * 16);
+	players[1].live = 0;
+	players[1].live_amount = 0;
+	ft_bzero(players[1].reg, 16);
+	players[1].reg[0] = -1;
+	players[1].stop = 0;
 	// players[0].header.name = "helltrain";
 	// players[0].comands = "0b6801018700010b6801018f00010b6801019000010b6801005700010b6801018d00010b6801018600090b6801017f00110b680101a500010b6801018900020b680101cd00010b680101c600090b680101980001029000000000100c0143029000000000020290000000001001004acdc7037002ffe8037002ffdf037002ffd6037002ffcd037002ffc4037002ffbb037002ffb2037002ffa9037002ffa0037002ff97037002ff8e037002ff85037002ff7c037002ff73037002ff6a037002ff61037002ff58037002ff4f037002ff46037002ff3d037002ff34037002ff2b037002ff22037002ff19037002ff10037002ff07037002fefe037002fef5037002feec037002fee3037002feda037002fed1037002fec8037002febf037002feb6037002fead037002fea4037002fe9b037002fe92037002fe89037002fe80037002fe77037002fe6e037002fe65037002fe5c037002fe53037002fe4a037002fe41037002fe38037002fe2f037002fe26037002fe1d037002fe14037002fe0b037002fe0209fee8010040b03f0cfffb02900000000010010034867e09fffb010041eca70900030cfff80100420e4a0c005e010033e5a30c002f0100460bcf0c00840290000000000202900f037003030290000000001001004b3b770290000000001009007801004242460cfe7402900f03700302029017037003030290000000001002900000000010090051010040aea50cff9801003e75620cff6e0290ffff01000202901a0370030302900000000010029000000000100290000000001009001b029003700200020290130370030302900000000010090003037002000f037003ffff0100000000";
 	// players[0].num = -2;
@@ -212,8 +305,8 @@ int		main(void)
 	// players[3].reg = (unsigned char*)malloc(sizeof(unsigned char) * 16);
 	// ft_bzero(players[3].reg, 16);
 	// players[3].reg[0] = players[3].num;
-	players[1].header.name = NULL;
-	players[1].comands = NULL;
+	players[2].header.name = NULL;
+	players[2].comands = NULL;
 	go_vm(players, 1);
 	return (0);
 }

@@ -13,17 +13,14 @@
 #ifndef VM_H
 # define VM_H
 
-// # if defined(linux) || defined(_WIN32)
-// # include <GL/glut.h>
-// # else
-// # include <GLUT/GLUT.h>
-// # endif
 # include <ncurses.h>
 # include "op.h"
 # include "../libft/libft.h"
 # include <stdlib.h>
 # include <limits.h>
 # include <stdio.h>
+// # include "../SDL2.framework/Versions/A/Headers/SDL.h"
+// # include "../SDL2_mixer.framework/Versions/A/Headers/SDL_mixer.h"
 # define RED "\x1b[31m"
 # define END "\033[0m"
 
@@ -38,7 +35,6 @@ struct					s_players
 	int					live;
 	int					live_amount;
 	int					num;
-	int					vis_num;
 	int 				pos;
 	unsigned int		*reg;
 	int					stop;
@@ -59,6 +55,7 @@ typedef struct			s_flags
 // t_flags					*create_flags(void);
 // t_players				*get_players(char **argv, int argc);
 // t_players 				*create_players(void);
+void					start_vm(t_players **tmp, int count);
 int						translate(byte r1, byte r2, byte r3, byte r4);
 void					vizualize(byte *memory, t_players *players, WINDOW **win1, WINDOW *win);
 void					status_bar(WINDOW **win2, WINDOW *win, t_players *players);
@@ -78,5 +75,6 @@ void					lld(t_players *player, byte *map);
 void					fork_func(t_players *player, byte *map, t_players **stack);
 void					lfork_func(t_players *player, byte *map, t_players **stack);
 void					refresh_map(WINDOW *win1, byte *map);
+void					aff(t_players *player, byte *map);
 
 #endif

@@ -19,6 +19,19 @@ int 	translate(byte r1, byte r2, byte r3, byte r4)
 	return (r1 * 256 * 256 * 256 + r2 * 256 * 256 + r3 * 256 + r4);
 }
 
+void	aff(t_players *player, byte *map)
+{
+	int		reg;
+
+	reg = player->reg[map[player->pos + 2]] % 256;
+	ft_putstr("Player #");
+	ft_putnbr(player->num);
+	ft_putstr(" says: ");
+	ft_putchar(reg);
+	ft_putchar('\n');
+	player->pos += 2;
+}
+
 void	fork_func(t_players *player, byte *map, t_players **stack)
 {
 	int			dir;
@@ -49,6 +62,7 @@ void	fork_func(t_players *player, byte *map, t_players **stack)
 	tmp->pos = player->pos + dir;
 	tmp->stop = 0;
 	tmp->carry = player->carry;
+	player->pos += 3;
 }
 
 void	lfork_func(t_players *player, byte *map, t_players **stack)
@@ -79,6 +93,7 @@ void	lfork_func(t_players *player, byte *map, t_players **stack)
 	tmp->stop = 0;
 	tmp->carry = player->carry;
 	tmp->num = 0;
+	player->pos += 3;
 }
 
 void	and_xor(t_players *player, byte *map, char flag)
@@ -315,7 +330,6 @@ void	st(t_players *player, byte *map)
 	if (ft_strnstr(binary, "11", 2))
 	{
 		r2 = translate(0, 0, map[(*player).pos + posit + 1], map[(*player).pos + posit + 2]);
-		// r2 = translate(map[(*player).pos + translate(0, 0, map[(*player).pos + posit + 1], map[(*player).pos + posit + 2]) + 1], map[(*player).pos + translate(0, 0, map[(*player).pos + posit + 1], map[(*player).pos + posit + 2]) + 2], map[(*player).pos + translate(0, 0, map[(*player).pos + posit + 1], map[(*player).pos + posit + 2]) + 3], map[(*player).pos + translate(0, 0, map[(*player).pos + posit + 1], map[(*player).pos + posit + 2]) + 4]);
 		posit += 2;
 	}
 	else if (ft_strnstr(binary, "01", 2))

@@ -15,10 +15,9 @@ CC = gcc
 SRC = src/go.c src/funcs.c src/vizualize.c src/viz_dop.c
 LIB = libft/libft.a
 FLAGS = -Wall -Wextra -Werror
-# SDL_FLAG = -I /Library/Frameworks/SDL2.framework/Versions/A/Headers \
-# 			-F /Library/Frameworks/ -framework SDL2
-# SDL_ttf = -I /vm/SDL2_ttf.framework/Versions/A/Headers \
-# 			-F ./ -framework SDL2_ttf
+# SDL_FLAG = -F. -framework SDL2
+# SDL_mixer = -I /vm/SDL2_mixer.framework/Versions/A/Headers \
+# 			-F ./ -framework SDL2_mixer
 
 
 .PHONY: all re clean fclean
