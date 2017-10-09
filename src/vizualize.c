@@ -13,7 +13,7 @@
 #include "../includes/vm.h"
 #include "../includes/op.h"
 
-void	get_players(WINDOW *win, byte *memory, t_players *players)
+void	get_players_viz(WINDOW *win, byte *memory, t_players *players)
 {
 	int 	i;
 	int 	player;
@@ -28,8 +28,8 @@ void	get_players(WINDOW *win, byte *memory, t_players *players)
 	x = 2;
 
 	player = 1;
-	max_X = 0;
-	getmaxyx(win, y, max_X);
+	max_X = 196;
+	// getmaxyx(win, y, max_X);
 	init_pair(1, COLOR_BLUE, COLOR_BLACK);
 	init_pair(2, COLOR_GREEN, COLOR_BLACK);
 	init_pair(3, COLOR_RED, COLOR_BLACK);
@@ -70,46 +70,49 @@ void	get_players(WINDOW *win, byte *memory, t_players *players)
 	wrefresh(win);
 }
 
-void	status_bar(WINDOW **win2, WINDOW *win, t_players *players)
+void	status_bar(WINDOW **win2, t_players *players)
 {
-	int 	max_X;
-	int 	max_Y;
 	int 	y;
 	int 	i;
 
 	i = 0;
 	y = 2;
-	getmaxyx(win, max_Y, max_X);
-	*win2 = newwin(max_Y, max_X * 0.2, 0, max_X * 0.8 + 1);
+	*win2 = newwin(69, 57, 0, 198);
 	box(*win2, 0, 0);
-	while (players[i].header.name != NULL)
+	while (players[i].header.prog_name[0] != '\0')
 	{
 		wmove(*win2, y, 2);
 		wprintw(*win2, "Player: ");
 		wattron(*win2, COLOR_PAIR(i + 1) | A_BOLD);
-		wprintw(*win2, "%s", players[i].header.name);
+		wprintw(*win2, "%s", players[i].header.prog_name);
 		wattroff(*win2, COLOR_PAIR(i + 1) | A_BOLD);
 		wmove(*win2, ++y, 2);
 		wprintw(*win2, "Player number: %d", players[i].num);
 		wmove(*win2, ++y, 2);
 		wprintw(*win2, "Player live counter: %d", players[i].live);
+		wmove(*win2, ++y, 2);
+		wprintw(*win2, "Player live amount: %d", players[i].live_amount);
+		wmove(*win2, ++y, 2);
+		wprintw(*win2, "Player last live: %d", players[i].last_live);
 		y += 2;
 		i++;
 	}
+	wmove(*win2, y + 2, 2);
+	wprintw(*win2, "CYCLES: %d", *(players[0].cycles));
 	wrefresh(*win2);
 }
 
 void	vizualize(byte *memory, t_players *players, WINDOW **win1, WINDOW *win)
 {
-	int 	max_X;
-	int 	max_Y;
+	// int 	max_X;
+	// int 	max_Y;
 
-	getmaxyx(win, max_Y, max_X);
-	*win1 = newwin(max_Y, max_X * 0.8, 0, 0);
+	// getmaxyx(win, max_Y, max_X);
+	*win1 = newwin(69, 197, 0, 0);
 	start_color();
 	box(*win1, 0, 0);
 	//wbkgd(win, COLOR_PAIR(2));
 	wrefresh(win);
 	wrefresh(*win1);
-	get_players(*win1, memory, players);
+	get_players_viz(*win1, memory, players);
 }

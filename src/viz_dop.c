@@ -70,6 +70,35 @@ void	refresh_map(WINDOW *win, byte *map)
 	}
 }
 
+void	cursor_refresh_stack(WINDOW *win1, WINDOW *win2, t_players *players, byte *map)
+{
+	int 	x;
+	int 	y;
+	int 	max;
+	char	*tmp;
+
+	y = 0;
+	x = 0;
+	getmaxyx(win1, y, x);
+	max = (x - 5) / 3;
+	init_pair(5, COLOR_WHITE, COLOR_BLUE);
+	y = 4;
+	while (players != NULL)
+	{
+		wmove(win1, players->pos / max + 1, (players->pos % max * 3) + 2);
+		tmp = get_hex(map[players->pos]);
+		wattron(win1, COLOR_PAIR(5) | A_BOLD);
+		wprintw(win1, "%s", tmp);
+		wattroff(win1, COLOR_PAIR(5) | A_BOLD);
+		y += 4;
+		free(tmp);
+		players = players->next;
+	}
+	wrefresh(win1);
+	wrefresh(win2);
+	tmp = NULL;
+}
+
 void	cursor_refresh(WINDOW *win1, WINDOW *win2, t_players *players, byte *map)
 {
 	int 	x;
@@ -88,7 +117,7 @@ void	cursor_refresh(WINDOW *win1, WINDOW *win2, t_players *players, byte *map)
 	init_pair(7, COLOR_WHITE, COLOR_RED);
 	init_pair(8, COLOR_WHITE, COLOR_YELLOW);
 	y = 4;
-	while (players[player - 1].header.name != NULL)
+	while (players[player - 1].header.prog_name[0] != '\0')
 	{
 		wmove(win1, players[player - 1].pos / max + 1, (players[player - 1].pos % max * 3) + 2);
 		tmp = get_hex(map[players[player - 1].pos]);

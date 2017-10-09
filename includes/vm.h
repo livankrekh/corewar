@@ -23,6 +23,9 @@
 // # include "../SDL2_mixer.framework/Versions/A/Headers/SDL_mixer.h"
 # define RED "\x1b[31m"
 # define END "\033[0m"
+# define HEX "0123456789abcdef"
+# include <fcntl.h>
+# include <unistd.h>
 
 typedef	unsigned char 		byte;
 typedef	int					t_bool;
@@ -39,6 +42,9 @@ struct					s_players
 	unsigned int		*reg;
 	int					stop;
 	int					carry;
+	int					*cycles;
+	int					last_live;
+	int					*last_live_ptr;
 	int					*live_ptr;
 	t_players			*next;
 };
@@ -47,19 +53,25 @@ typedef struct			s_flags
 {
 	int 				visual;
 	int					dump;
+	int					amount_players;
+	int					amount_num;
 }						t_flags;
 
-// void					print_comands(void);
-// int						get_flags(t_flags *flags, char **argv);
-// void					print_error(char *str);
-// t_flags					*create_flags(void);
-// t_players				*get_players(char **argv, int argc);
-// t_players 				*create_players(void);
-void					start_vm(t_players **tmp, int count);
+void					print_comands(void);
+void					print_data_players(t_players **players);
+void					print_error(char *str);
+int						get_flags(t_flags *flags, char **argv);
+int						get_players(t_players *players, char **argv, int argc, t_flags *flags);
+int						is_digit(char *str);
+t_flags					*create_flags(void);
+t_players				*create_players(void);
+long long int			ft_atoiLong(const char *str);
+int						ft_swap_players(t_players **players, int amount_players);
 int						translate(byte r1, byte r2, byte r3, byte r4);
 void					vizualize(byte *memory, t_players *players, WINDOW **win1, WINDOW *win);
-void					status_bar(WINDOW **win2, WINDOW *win, t_players *players);
+void					status_bar(WINDOW **win2, t_players *players);
 void					cursor_refresh(WINDOW *win1, WINDOW *win2, t_players *players, byte *map);
+void					cursor_refresh_stack(WINDOW *win1, WINDOW *win2, t_players *players, byte *map);
 void					zjmp(t_players *player, byte *map);
 void					live(t_players *players, byte *map, t_players *player);
 void					sti(t_players *player, byte *map);
@@ -76,5 +88,6 @@ void					fork_func(t_players *player, byte *map, t_players **stack);
 void					lfork_func(t_players *player, byte *map, t_players **stack);
 void					refresh_map(WINDOW *win1, byte *map);
 void					aff(t_players *player, byte *map);
+void					start_vm(t_players **tmp, int count, t_flags *flags);
 
 #endif

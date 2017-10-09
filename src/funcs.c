@@ -23,6 +23,8 @@ void	aff(t_players *player, byte *map)
 {
 	int		reg;
 
+	if (map[player->pos + 2] > REG_NUMBER)
+		return ;
 	reg = player->reg[map[player->pos + 2]] % 256;
 	ft_putstr("Player #");
 	ft_putnbr(player->num);
@@ -37,7 +39,9 @@ void	fork_func(t_players *player, byte *map, t_players **stack)
 	int			dir;
 	t_players	*tmp;
 
-	dir = translate(0, 0, map[player->pos + 1], map[player->pos + 2]) % IDX_MOD;
+	dir = translate(0, 0, map[(player->pos + 1) % MEM_SIZE], map[(player->pos + 2) % MEM_SIZE]) % IDX_MOD;
+	if (dir > 0x7FFF)
+		dir -= 0xFFFF - 1;
 	if (*stack == NULL)
 	{
 		*stack = (t_players*)malloc(sizeof(t_players));
@@ -51,15 +55,22 @@ void	fork_func(t_players *player, byte *map, t_players **stack)
 		tmp->next = (t_players*)malloc(sizeof(t_players));
 		tmp = tmp->next;
 	}
-	tmp->header.name = "fork";
+	ft_strncpy(tmp->header.prog_name, "fork", 4);
 	tmp->comands = NULL;
 	tmp->reg = player->reg;
-	if (ft_strnstr(player->header.name, "fork", 4))
+	if (ft_strnstr(player->header.prog_name, "fork", 4))
+	{
+		tmp->last_live_ptr = player->last_live_ptr;
 		tmp->live_ptr = player->live_ptr;
+	}
 	else
+	{
+		tmp->last_live_ptr = &(player->last_live);
 		tmp->live_ptr = &(player->live);
+	}
 	tmp->next = NULL;
-	tmp->pos = player->pos + dir;
+	tmp->cycles = player->cycles;
+	tmp->pos = player->pos + dir % MEM_SIZE;
 	tmp->stop = 0;
 	tmp->carry = player->carry;
 	player->pos += 3;
@@ -70,7 +81,9 @@ void	lfork_func(t_players *player, byte *map, t_players **stack)
 	int			dir;
 	t_players	*tmp;
 
-	dir = translate(0, 0, map[player->pos + 1], map[player->pos + 2]);
+	dir = translate(0, 0, map[(player->pos + 1) % MEM_SIZE], map[(player->pos + 2) % MEM_SIZE]);
+	if (dir > 0x7FFF)
+		dir -= 0xFFFF - 1;
 	if (*stack == NULL)
 	{
 		*stack = (t_players*)malloc(sizeof(t_players));
@@ -84,13 +97,23 @@ void	lfork_func(t_players *player, byte *map, t_players **stack)
 		tmp->next = (t_players*)malloc(sizeof(t_players));
 		tmp = tmp->next;
 	}
-	tmp->header.name = "fork";
+	ft_strncpy(tmp->header.prog_name, "fork", 4);
 	tmp->comands = NULL;
 	tmp->reg = player->reg;
-	tmp->live_ptr = &(player->live);
+	if (ft_strnstr(player->header.prog_name, "fork", 4))
+	{
+		tmp->last_live_ptr = player->last_live_ptr;
+		tmp->live_ptr = player->live_ptr;
+	}
+	else
+	{
+		tmp->last_live_ptr = &(player->last_live);
+		tmp->live_ptr = &(player->live);
+	}
 	tmp->next = NULL;
-	tmp->pos = player->pos + dir;
+	tmp->pos = player->pos + dir % MEM_SIZE;
 	tmp->stop = 0;
+	tmp->cycles = player->cycles;
 	tmp->carry = player->carry;
 	tmp->num = 0;
 	player->pos += 3;
@@ -108,7 +131,7 @@ void	and_xor(t_players *player, byte *map, char flag)
 	r2 = 0;
 	opp = get_binary(map, player);
 	if (ft_strnstr(opp, "01", 2))
-		r1 = (*player).reg[map[(*player).pos + posit++ + 1] - 1];
+		r1 = (*player).reg[map[((*player).pos + posit++ + 1) % MEM_SIZE] - 1 % REG_NUMBER];
 	else if (ft_strnstr(opp, "10", 2))
 	{
 		r1 = translate(map[(*player).pos + 2], map[(*player).pos + 3], map[(*player).pos + 4], map[(*player).pos + 5]);
@@ -167,21 +190,30 @@ void	zjmp(t_players *player, byte *map)
 void	live(t_players *players, byte *map, t_players *player)
 {
 	int		i;
+	int		reg;
 
 	i = 0;
-	while (players[i].header.name != NULL)
+	reg = (int)translate(*map, *(map + 1), *(map + 2), *(map + 3));
+	while (players[i].header.prog_name[0] != '\0')
 	{
-		if ((unsigned int)translate(*map, *(map + 1), *(map + 2), *(map + 3)) == (unsigned int)(players[i].num * -1))
+		if (reg == players[i].num)
 		{
-			players[i].live_amount += 1;
-			break ;
+			players[i].live += 1;
+			players[i].last_live = *(player[i].cycles);
+			return ;
 		}
 		i++;
 	}
-	if (players[i].header.name == NULL && ft_strnstr(player->header.name, "fork", 4))
+	if (players[i].header.prog_name[0] == '\0' && ft_strnstr(player->header.prog_name, "fork", 4))
+	{
 		*(player->live_ptr) += 1;
-	else if (players[i].header.name == NULL)
+		*(player->last_live_ptr) = *(player->cycles);
+	}
+	else if (players[i].header.prog_name[0] == '\0')
+	{
 		(*player).live += 1;
+		player->last_live = *(player->cycles);
+	}
 	(*player).pos += 5;
 }
 
@@ -336,10 +368,10 @@ void	st(t_players *player, byte *map)
 		r2 = (*player).reg[map[(*player).pos + posit++ + 1] - 1];
 	binary -= 2;
 	free(binary);
-	map[(*player).pos + r2] = (*player).reg[map[(*player).pos + 2] - 1] / 0x1000000;
-	map[(*player).pos + r2 + 1] = (*player).reg[map[(*player).pos + 2] - 1] / 0x10000;
-	map[(*player).pos + r2 + 2] = (*player).reg[map[(*player).pos + 2] - 1] / 0x100;
-	map[(*player).pos + r2 + 3] = (*player).reg[map[(*player).pos + 2] - 1] % 0x100;
+	map[((*player).pos + r2) % MEM_SIZE] = (*player).reg[map[(*player).pos + 2] - 1] / 0x1000000;
+	map[((*player).pos + r2 + 1) % MEM_SIZE] = (*player).reg[map[(*player).pos + 2] - 1] / 0x10000;
+	map[((*player).pos + r2 + 2) % MEM_SIZE] = (*player).reg[map[(*player).pos + 2] - 1] / 0x100;
+	map[((*player).pos + r2 + 3) % MEM_SIZE] = (*player).reg[map[(*player).pos + 2] - 1] % 0x100;
 	(*player).pos += posit + 1;
 }
 

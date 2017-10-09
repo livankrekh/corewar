@@ -12,7 +12,8 @@
 
 NAME1 = corewar
 CC = gcc
-SRC = src/go.c src/funcs.c src/vizualize.c src/viz_dop.c
+SRC = src/go.c src/funcs.c src/vizualize.c src/viz_dop.c src/create_fun.c \
+	src/get_flags.c src/get_players.c src/help_func.c src/main.c src/print_func.c
 LIB = libft/libft.a
 FLAGS = -Wall -Wextra -Werror
 # SDL_FLAG = -F. -framework SDL2
@@ -31,7 +32,7 @@ $(LIB):
 	make -C ./libft
 
 %.o: %.c
-	$(CC) -o $@ -c $< $(FLAGS)
+	@$(CC) -o $@ -c $< $(FLAGS)
 
 clean:
 	make clean -C ./libft
