@@ -203,8 +203,8 @@ int		main(int argc, char **argv)
         return (0);
     change_first_reg_players(&players);
     print_data_players(&players);
-    if ((ft_swap_players(&players, flags->amount_players) == 0))
-        return (0);
+    // if ((ft_swap_players(&players, flags->amount_players) == 0))
+    //     return (0);
 	start_vm(&players, flags->amount_players, flags);
 	return (0);
 }

@@ -75,6 +75,7 @@ void	get_command(t_players *player, byte *map, t_players **stack, t_players *pla
 {
 	if (player->stop == 0)
 	{
+		// printf("Player #%d - func #%d\n", player->num, map[player->pos]);
 		if (map[player->pos] == 1)
 			live(players, &(map[player->pos + 1]), player);
 		else if (map[player->pos] == 2)
@@ -145,10 +146,10 @@ int 	get_last(t_players *players)
 	res = i;
 	last = 0;
 	pre = 0;
+	printf("\n");
 	while (players[i].header.prog_name[0] != '\0')
 	{
-		printf("Contestant #%d with lives = %d\n", i, players[i].live + players[i].live_amount);
-		printf("Contestant #%d with last cycle = %d\n", i, players[i].last_live);
+		printf("Contestant \'%s\' with lives = %d | with last live on cycle - %d\n", players[i].header.prog_name, players[i].live + players[i].live_amount, players[i].last_live);
 		pre = players[i].last_live;
 		if (last < pre || (last == pre && players[i].live + players[i].live_amount > players[res].live + players[res].live_amount))
 		{
@@ -167,6 +168,9 @@ void	end_game(t_players *players, byte *map, t_players **stack, char flag)
 	t_players	*tmp2;
 
 	i = 0;
+	// for (int j = 0; j < MEM_SIZE; j++)
+	// 	printf(" %x ", map[j]);
+	// printf("\n");
 	free(map);
 	map = NULL;
 	tmp = *stack;
@@ -182,7 +186,7 @@ void	end_game(t_players *players, byte *map, t_players **stack, char flag)
 	if (flag == 'e')
 		i = get_last(players);
 	ft_putstr("Contestant #");
-	ft_putnbr(players[i].num * (players[i].num >= 0 ? 1 : -1));
+	ft_putnbr(players[i].num);
 	ft_putstr(", \"");
 	ft_putstr(players[i].header.prog_name);
 	ft_putstr("\", has won!\n");
@@ -307,6 +311,10 @@ void	start_vm(t_players **tmp, int count, t_flags *flags)
 	while (*tmp)
 	{
 		players[i] = **tmp;
+		players[i].num *= -1;
+		players[i].last_live = 0;
+		players[i].pos = 0 + ((players[i].num * -1 - 1) * (MEM_SIZE / count));
+		players[i].reg[0] = players[i].num;
 		tmp1 = (*tmp)->next;
 		free(*tmp);
 		tmp = &tmp1;

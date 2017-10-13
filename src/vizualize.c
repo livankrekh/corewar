@@ -40,7 +40,6 @@ void	get_players_viz(WINDOW *win, byte *memory, t_players *players)
 		if (i == 0 || memory[i] != 0)
 		{
 			tmp = players[player - 1].comands;
-			players[player - 1].pos = i;
 			tmp2 = ft_strnew(2);
 			while (*tmp != '\0')
 			{

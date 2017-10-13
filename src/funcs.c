@@ -14,6 +14,13 @@
 #include "../includes/op.h"
 #include <ncurses.h>
 
+int		get_reg(t_players *player, int n)
+{
+	if (n > REG_NUMBER || n < 1)
+		return (0);
+	return (player->reg[n]);
+}
+
 int 	translate(byte r1, byte r2, byte r3, byte r4)
 {
 	return (r1 * 256 * 256 * 256 + r2 * 256 * 256 + r3 * 256 + r4);
@@ -36,12 +43,12 @@ void	aff(t_players *player, byte *map)
 
 void	fork_func(t_players *player, byte *map, t_players **stack)
 {
-	int			dir;
+	short int	dir;
 	t_players	*tmp;
 
-	dir = translate(0, 0, map[(player->pos + 1) % MEM_SIZE], map[(player->pos + 2) % MEM_SIZE]) % IDX_MOD;
-	if (dir > 0x7FFF)
-		dir -= 0xFFFF - 1;
+	dir = (short int)translate(0, 0, map[(player->pos + 1) % MEM_SIZE], map[(player->pos + 2) % MEM_SIZE]);
+	if (dir + player->pos < 0)
+		dir = player->pos;
 	if (*stack == NULL)
 	{
 		*stack = (t_players*)malloc(sizeof(t_players));
@@ -70,7 +77,7 @@ void	fork_func(t_players *player, byte *map, t_players **stack)
 	}
 	tmp->next = NULL;
 	tmp->cycles = player->cycles;
-	tmp->pos = player->pos + dir % MEM_SIZE;
+	tmp->pos = player->pos + dir % IDX_MOD;
 	tmp->stop = 0;
 	tmp->carry = player->carry;
 	player->pos += 3;
@@ -78,12 +85,12 @@ void	fork_func(t_players *player, byte *map, t_players **stack)
 
 void	lfork_func(t_players *player, byte *map, t_players **stack)
 {
-	int			dir;
+	short int	dir;
 	t_players	*tmp;
 
-	dir = translate(0, 0, map[(player->pos + 1) % MEM_SIZE], map[(player->pos + 2) % MEM_SIZE]);
-	if (dir > 0x7FFF)
-		dir -= 0xFFFF - 1;
+	dir = (short int)translate(0, 0, map[(player->pos + 1) % MEM_SIZE], map[(player->pos + 2) % MEM_SIZE]);
+	if (dir + player->pos < 0)
+		dir = player->pos;
 	if (*stack == NULL)
 	{
 		*stack = (t_players*)malloc(sizeof(t_players));
@@ -174,15 +181,13 @@ void	and_xor(t_players *player, byte *map, char flag)
 
 void	zjmp(t_players *player, byte *map)
 {
-	int		jmp;
+	short int	jmp;
 
-	jmp = translate(0, 0, map[(*player).pos + 1], map[(*player).pos + 2]);
-	if (jmp > 0x7FFF)
-		jmp = jmp - 0xFFFF - 1;
-	else
-		jmp %= MEM_SIZE;
+	jmp = (short int)translate(0, 0, map[(*player).pos + 1], map[(*player).pos + 2]);
+	if (player->pos + jmp < 0)
+		jmp = player->pos;
 	if ((*player).carry == 1)
-		(*player).pos += jmp;
+		(*player).pos = (player->pos) + jmp % MEM_SIZE;
 	else
 		(*player).pos += 5;
 }
@@ -199,7 +204,8 @@ void	live(t_players *players, byte *map, t_players *player)
 		if (reg == players[i].num)
 		{
 			players[i].live += 1;
-			players[i].last_live = *(player[i].cycles);
+			players[i].last_live = *(players[i].cycles);
+			player->pos += 5;
 			return ;
 		}
 		i++;
