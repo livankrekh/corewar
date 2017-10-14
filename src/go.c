@@ -77,7 +77,7 @@ void	get_command(t_players *player, byte *map, t_players **stack, t_players *pla
 	{
 		// printf("Player #%d - func #%d\n", player->num, map[player->pos]);
 		if (map[player->pos] == 1)
-			live(players, &(map[player->pos + 1]), player);
+			live(players, map, player);
 		else if (map[player->pos] == 2)
 			ld(player, map);
 		else if (map[player->pos] == 3)
@@ -312,7 +312,6 @@ void	start_vm(t_players **tmp, int count, t_flags *flags)
 	{
 		players[i] = **tmp;
 		players[i].num *= -1;
-		players[i].last_live = 0;
 		players[i].pos = 0 + ((players[i].num * -1 - 1) * (MEM_SIZE / count));
 		players[i].reg[0] = players[i].num;
 		tmp1 = (*tmp)->next;
