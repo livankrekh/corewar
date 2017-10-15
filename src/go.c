@@ -17,8 +17,10 @@
 void	get_stop(t_players *player, byte *map)
 {
 	int 	stop[16] = {9, 4, 4, 9, 9, 5, 5, 5, 19, 24, 24, 799, 9, 49, 999, 1};
-	if (map[(*player).pos] > 0 && map[(*player).pos] <= 16)
-		(*player).stop = stop[map[(*player).pos] - 1];
+	if (map[player->pos] > 0 && map[player->pos] <= 16)
+		player->stop = stop[map[player->pos] - 1];
+	else
+		player->stop = 0;
 }
 
 void	delete_split(char ***split)
@@ -110,7 +112,7 @@ void	get_command(t_players *player, byte *map, t_players **stack, t_players *pla
 			aff(player, map);
 		else
 			player->pos += 1;
-		players->pos = players->pos % MEM_SIZE;
+		player->pos = player->pos % MEM_SIZE;
 		get_stop(player, map);
 	}
 	else
@@ -168,9 +170,6 @@ void	end_game(t_players *players, byte *map, t_players **stack, char flag)
 	t_players	*tmp2;
 
 	i = 0;
-	// for (int j = 0; j < MEM_SIZE; j++)
-	// 	printf(" %x ", map[j]);
-	// printf("\n");
 	free(map);
 	map = NULL;
 	tmp = *stack;
@@ -207,6 +206,54 @@ int 	get_lives(t_players *players)
 		i++;
 	}
 	return (res);
+}
+
+void	check_dead_proccess(t_players **stack)
+{
+	t_players	*tmp;
+	t_players	*tmp2;
+
+	tmp = *stack;
+	tmp2 = NULL;
+	while (tmp)
+	{
+		if (tmp->live + tmp->live_amount == 0)
+		{
+			if (tmp2 == NULL)
+				*stack = tmp->next;
+			else
+				tmp2->next = tmp->next;
+			free(tmp->reg);
+			free(tmp);
+		}
+		tmp2 = tmp;
+		tmp = tmp->next;
+	}
+}
+
+void	check_end(t_players *players, byte *map, t_players **stack, int count)
+{
+	int 		i;
+	t_players	*tmp;
+
+	i = 0;
+	while (players[i].header.prog_name[0] != '\0')
+	{
+		if (players[i].live + players[i].live_amount == 0 && count > 1)
+		{
+			free(players[i].comands);
+			players[i].comands = NULL;
+		}
+		else if (players[i].live + players[i].live_amount == 0 && count == 1)
+			end_game(players, map, stack, 'n');
+		players[i].live = 0;
+		players[i].live_amount = 0;
+		i++;
+	}
+	tmp = *stack;
+	check_dead_proccess(stack);
+	if (get_alive_players(players) == 1 && count != 1)
+		end_game(players, map, stack, 'n');
 }
 
 void	go_vm(t_players *players, int count)
@@ -267,20 +314,7 @@ void	go_vm(t_players *players, int count)
 			}
 			else
 				max_checks++;
-			while (players[i].header.prog_name[0] != '\0')
-			{
-				// printf("CONT #%d has last_live = %d || lives = %d\n", i, players[i].last_live, players[i].live + players[i].live_amount);
-				if (players[i].live + players[i].live_amount == 0)
-				{
-					free(players[i].comands);
-					players[i].comands = NULL;
-				}
-				players[i].live = 0;
-				players[i].live_amount = 0;
-				i++;
-			}
-			if (get_alive_players(players) == 1 && count != 1)
-				end_game(players, map, &stack, 'n');
+			check_end(players, map, &stack, count);
 			cycles_test = 1;
 		}
 		// printf("DIE = %d || CYCLES = %d\n", DIE, cycles);

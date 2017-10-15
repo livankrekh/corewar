@@ -27,8 +27,6 @@ t_players *create_players(void)
 	players->carry = 0;
 	players->cycles = NULL;
 	players->last_live = 0;
-	players->last_live_ptr = NULL;
-	players->live_ptr = NULL;
 	players->next = NULL;
 	return (players);
 }

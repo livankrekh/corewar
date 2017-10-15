@@ -44,8 +44,6 @@ struct					s_players
 	int					carry;
 	int					*cycles;
 	int					last_live;
-	int					*last_live_ptr;
-	int					*live_ptr;
 	t_players			*next;
 };
 
