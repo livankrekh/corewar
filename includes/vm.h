@@ -87,5 +87,6 @@ void					lfork_func(t_players *player, byte *map, t_players **stack);
 void					refresh_map(WINDOW *win1, byte *map);
 void					aff(t_players *player, byte *map);
 void					start_vm(t_players **tmp, int count, t_flags *flags);
+void					get_stop(t_players *player, byte *map);
 
 #endif

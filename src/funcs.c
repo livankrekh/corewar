@@ -82,31 +82,20 @@ void		fork_func(t_players *player, byte *map, t_players **stack)
 	t_players	*tmp;
 
 	dir = (short int)get_TDIR(2, player->pos + 1, map) % IDX_MOD;
-	if (*stack == NULL)
-	{
-		*stack = (t_players*)malloc(sizeof(t_players));
-		tmp = *stack;
-	}
-	else
-	{
-		tmp = *stack;
-		while (tmp->next != NULL)
-			tmp = tmp->next;
-		tmp->next = (t_players*)malloc(sizeof(t_players));
-		tmp = tmp->next;
-	}
+	tmp = (t_players*)malloc(sizeof(t_players));
+	tmp->next = *stack;
+	*stack = tmp;
 	ft_strncpy(tmp->header.prog_name, "fork", 4);
 	tmp->comands = NULL;
 	tmp->reg = (unsigned int*)malloc(sizeof(unsigned int) * REG_NUMBER);
 	ft_memcpy(tmp->reg, player->reg, sizeof(unsigned int) * REG_NUMBER);
 	tmp->live = player->live;
 	tmp->live_amount = player->live_amount;
-	tmp->next = NULL;
 	tmp->cycles = player->cycles;
 	if (player->pos + dir < 0)
 		dir = MEM_SIZE + dir;
 	tmp->pos = (player->pos + dir) % MEM_SIZE;
-	tmp->stop = 0;
+	get_stop(tmp, map);
 	tmp->carry = player->carry;
 	player->pos += 3;
 }
@@ -119,30 +108,19 @@ void	lfork_func(t_players *player, byte *map, t_players **stack)
 	dir = (short int)get_TDIR(2, player->pos + 1, map);
 	if (dir + player->pos < 0)
 		dir = player->pos;
-	if (*stack == NULL)
-	{
-		*stack = (t_players*)malloc(sizeof(t_players));
-		tmp = *stack;
-	}
-	else
-	{
-		tmp = *stack;
-		while (tmp->next != NULL)
-			tmp = tmp->next;
-		tmp->next = (t_players*)malloc(sizeof(t_players));
-		tmp = tmp->next;
-	}
+	tmp = (t_players*)malloc(sizeof(t_players));
+	tmp->next = *stack;
+	*stack = tmp;
 	ft_strncpy(tmp->header.prog_name, "fork", 4);
 	tmp->comands = NULL;
 	tmp->reg = (unsigned int*)malloc(sizeof(unsigned int) * REG_NUMBER);
 	ft_memcpy(tmp->reg, player->reg, sizeof(unsigned int) * REG_NUMBER);
 	tmp->live = player->live;
 	tmp->live_amount = player->live_amount;
-	tmp->next = NULL;
 	if (player->pos + dir < 0)
 		dir = MEM_SIZE + dir;
 	tmp->pos = (player->pos + dir) % MEM_SIZE;
-	tmp->stop = 0;
+	get_stop(tmp, map);
 	tmp->cycles = player->cycles;
 	tmp->carry = player->carry;
 	tmp->num = 0;
@@ -239,6 +217,8 @@ void	live(t_players *players, byte *map, t_players *player)
 		{
 			players[i].live += 1;
 			players[i].last_live = *(players[i].cycles);
+			if (ft_strnstr(player->header.prog_name, "fork", 4))
+				player->live_amount += 1;
 			player->pos += 5;
 			return ;
 		}
@@ -320,15 +300,15 @@ void	sti(t_players *player, byte *map)
 	if (player->pos + ((r1 + r2) % IDX_MOD) < 0)
 	{
 		map[MEM_SIZE + (player->pos + ((r1 + r2) % IDX_MOD))] = (unsigned int)get_REG(player, player->pos + 2, map) / 0x1000000;
-		map[MEM_SIZE + (player->pos + ((r1 + r2) % IDX_MOD + 1))] = (unsigned int)get_REG(player, player->pos + 2, map) / 0x10000;
-		map[MEM_SIZE + (player->pos + ((r1 + r2) % IDX_MOD + 2))] = (unsigned int)get_REG(player, player->pos + 2, map) / 0x100;
+		map[MEM_SIZE + (player->pos + ((r1 + r2) % IDX_MOD + 1))] = ((unsigned int)get_REG(player, player->pos + 2, map) / 0x10000) & 0xFF;
+		map[MEM_SIZE + (player->pos + ((r1 + r2) % IDX_MOD + 2))] = ((unsigned int)get_REG(player, player->pos + 2, map) / 0x100) & 0xFF;
 		map[MEM_SIZE + (player->pos + ((r1 + r2) % IDX_MOD + 3))] = (unsigned int)get_REG(player, player->pos + 2, map) % 0x100;
 	}
 	else
 	{
 		map[player->pos + ((r1 + r2) % IDX_MOD)] = (unsigned int)get_REG(player, player->pos + 2, map) / 0x1000000;
-		map[player->pos + ((r1 + r2) % IDX_MOD + 1)] = (unsigned int)get_REG(player, player->pos + 2, map) / 0x10000;
-		map[player->pos + ((r1 + r2) % IDX_MOD + 2)] = (unsigned int)get_REG(player, player->pos + 2, map) / 0x100;
+		map[player->pos + ((r1 + r2) % IDX_MOD + 1)] = ((unsigned int)get_REG(player, player->pos + 2, map) / 0x10000) & 0xFF;
+		map[player->pos + ((r1 + r2) % IDX_MOD + 2)] = ((unsigned int)get_REG(player, player->pos + 2, map) / 0x100) & 0xFF;
 		map[player->pos + ((r1 + r2) % IDX_MOD + 3)] = (unsigned int)get_REG(player, player->pos + 2, map) % 0x100;
 	}
 	player->pos += posit + 1;
@@ -420,14 +400,15 @@ void	add(t_players *player, byte *map)
 
 void	st(t_players *player, byte *map)
 {
-	int		r2;
-	char	*binary;
-	int		posit;
+	int				r2;
+	char			*binary;
+	int				posit;
+	unsigned int	r1;
 
-	r2 = 0;
 	posit = 2;
 	binary = get_binary(map, player);
 	binary += 2;
+	r2 = 0;
 	if (ft_strnstr(binary, "11", 2))
 	{
 		r2 = (short int)get_INDIR(player, 'd', player->pos + posit + 1, map) % IDX_MOD;
@@ -442,10 +423,11 @@ void	st(t_players *player, byte *map)
 	free(binary);
 	if (player->pos + r2 < 0)
 		r2 = MEM_SIZE + r2;
-	map[(player->pos + r2) % MEM_SIZE] = (unsigned int)get_REG(player, player->pos + 2, map) / 0x1000000;
-	map[(player->pos + r2 + 1) % MEM_SIZE] = (unsigned int)get_REG(player, player->pos + 2, map) / 0x10000;
-	map[(player->pos + r2 + 2) % MEM_SIZE] = (unsigned int)get_REG(player, player->pos + 2, map) / 0x100;
-	map[(player->pos + r2 + 3) % MEM_SIZE] = (unsigned int)get_REG(player, player->pos + 2, map) % 0x100;
+	r1 = (unsigned int)get_REG(player, player->pos + 2, map);
+	map[(player->pos + r2) % MEM_SIZE] = r1 / 0x1000000;
+	map[(player->pos + r2 + 1) % MEM_SIZE] = (r1 / 0x10000) & 0xFF;
+	map[(player->pos + r2 + 2) % MEM_SIZE] = (r1 / 0x100) & 0xFF;
+	map[(player->pos + r2 + 3) % MEM_SIZE] = r1 % 0x100;
 	player->pos += posit + 1;
 }
 
@@ -460,22 +442,22 @@ void	ld(t_players *player, byte *map)
 	binary = get_binary(map, player);
 	if (ft_strnstr(binary, "10", 2))
 	{
-		r1 = get_TDIR(4, player->pos + posit + 1, map) % IDX_MOD;
+		r1 = get_TDIR(4, player->pos + posit + 1, map);
 		posit += 4;
 	}
 	else if (ft_strnstr(binary, "11", 2))
 	{
-		r1 = get_INDIR(player, 'r', player->pos + posit + 1, map) % IDX_MOD;
+		r1 = get_INDIR(player, 'r', player->pos + posit + 1, map);
 		posit += 2;
 	}
 	free(binary);
 	if (map[(player->pos + posit + 1) % MEM_SIZE] < 1 || map[(player->pos + posit + 1) % MEM_SIZE] > REG_NUMBER)
 	{
-		player->pos += ++posit + 1;
+		player->pos += posit + 2;
 		return ;
 	}
-	player->reg[map[(player->pos + posit + 1) % MEM_SIZE] - 1] = r1;
-	player->pos += ++posit + 1;
+	player->reg[map[(player->pos + posit + 1) % MEM_SIZE] - 1] = (unsigned int)r1;
+	player->pos += posit + 2;
 	if (r1 == 0)
 		player->carry = 1;
 }

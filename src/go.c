@@ -77,7 +77,6 @@ void	get_command(t_players *player, byte *map, t_players **stack, t_players *pla
 {
 	if (player->stop == 0)
 	{
-		// printf("Player #%d - func #%d\n", player->num, map[player->pos]);
 		if (map[player->pos] == 1)
 			live(players, map, player);
 		else if (map[player->pos] == 2)
@@ -225,13 +224,22 @@ void	check_dead_proccess(t_players **stack)
 				tmp2->next = tmp->next;
 			free(tmp->reg);
 			free(tmp);
+			if (tmp2 == NULL)
+				tmp = *stack;
+			else
+				tmp = tmp2->next;
 		}
-		tmp2 = tmp;
-		tmp = tmp->next;
+		else
+		{
+			tmp->live = 0;
+			tmp->live_amount = 0;
+			tmp2 = tmp;
+			tmp = tmp->next;
+		}
 	}
 }
 
-void	check_end(t_players *players, byte *map, t_players **stack, int count)
+void	check_end(t_players *players, byte *map, t_players **stack)
 {
 	int 		i;
 	t_players	*tmp;
@@ -239,20 +247,18 @@ void	check_end(t_players *players, byte *map, t_players **stack, int count)
 	i = 0;
 	while (players[i].header.prog_name[0] != '\0')
 	{
-		if (players[i].live + players[i].live_amount == 0 && count > 1)
+		if (players[i].live + players[i].live_amount == 0 && players[i].comands != NULL)
 		{
 			free(players[i].comands);
 			players[i].comands = NULL;
 		}
-		else if (players[i].live + players[i].live_amount == 0 && count == 1)
-			end_game(players, map, stack, 'n');
 		players[i].live = 0;
 		players[i].live_amount = 0;
 		i++;
 	}
 	tmp = *stack;
 	check_dead_proccess(stack);
-	if (get_alive_players(players) == 1 && count != 1)
+	if (get_alive_players(players) == 0 && tmp == NULL)
 		end_game(players, map, stack, 'n');
 }
 
@@ -295,7 +301,6 @@ void	go_vm(t_players *players, int count)
 		{
 			if (players[i].comands != NULL)
 				get_command(&(players[i]), map, &stack, players);
-			// printf("Contestant #%d || lives = %d || last_live = %d\nwith comands = %s\n", i, players[i].live + players[i].live_amount, players[i].last_live, players[i].comands);
 			i++;
 		}
 		tmp = stack;
@@ -314,17 +319,15 @@ void	go_vm(t_players *players, int count)
 			}
 			else
 				max_checks++;
-			check_end(players, map, &stack, count);
+			check_end(players, map, &stack);
 			cycles_test = 1;
 		}
-		// printf("DIE = %d || CYCLES = %d\n", DIE, cycles);
-		// printf("cycles = %d\n", cycles);
 		refresh_map(win1, map);
 		cursor_refresh(win1, win2, players, map);
 		status_bar(&win2, players);
 		cursor_refresh_stack(win1, win2, stack, map);
 		wrefresh(win1);
-		usleep(1000);
+		usleep(5000);
 		cycles++;
 		cycles_test++;
 	}
