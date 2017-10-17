@@ -111,7 +111,7 @@ void	get_command(t_players *player, byte *map, t_players **stack, t_players *pla
 			aff(player, map);
 		else
 			player->pos += 1;
-		player->pos = player->pos % MEM_SIZE;
+		player->pos = player->pos % (MEM_SIZE - 1);
 		get_stop(player, map);
 	}
 	else
@@ -147,12 +147,12 @@ int 	get_last(t_players *players)
 	res = i;
 	last = 0;
 	pre = 0;
-	printf("\n");
+	// printf("\n");
 	while (players[i].header.prog_name[0] != '\0')
 	{
-		printf("Contestant \'%s\' with lives = %d | with last live on cycle - %d\n", players[i].header.prog_name, players[i].live + players[i].live_amount, players[i].last_live);
+		// printf("Contestant \'%s\' with lives = %d | with last live on cycle - %d\n", players[i].header.prog_name, players[i].live + players[i].live_amount, players[i].last_live);
 		pre = players[i].last_live;
-		if (last < pre || (last == pre && players[i].live + players[i].live_amount > players[res].live + players[res].live_amount))
+		if (last < pre)
 		{
 			last = pre;
 			res = i;
@@ -162,7 +162,7 @@ int 	get_last(t_players *players)
 	return (res);
 }
 
-void	end_game(t_players *players, byte *map, t_players **stack, char flag)
+void	end_game(t_players *players, byte *map, t_players **stack)
 {
 	int 		i;
 	t_players	*tmp;
@@ -175,20 +175,17 @@ void	end_game(t_players *players, byte *map, t_players **stack, char flag)
 	while (tmp != NULL)
 	{
 		tmp2 = tmp->next;
+		free(tmp->reg);
 		free(tmp);
 		tmp = tmp2;
 	}
 	*stack = NULL;
-	while (players[i].comands == NULL && players[i].header.prog_name[0] != '\0')
-		i++;
-	if (flag == 'e')
-		i = get_last(players);
+	i = get_last(players);
 	ft_putstr("Contestant #");
 	ft_putnbr(players[i].num);
 	ft_putstr(", \"");
 	ft_putstr(players[i].header.prog_name);
 	ft_putstr("\", has won!\n");
-	ft_putchar(flag);
 	exit(1);
 }
 
@@ -259,7 +256,7 @@ void	check_end(t_players *players, byte *map, t_players **stack)
 	tmp = *stack;
 	check_dead_proccess(stack);
 	if (get_alive_players(players) == 0 && tmp == NULL)
-		end_game(players, map, stack, 'n');
+		end_game(players, map, stack);
 }
 
 void	go_vm(t_players *players, int count)
@@ -280,12 +277,12 @@ void	go_vm(t_players *players, int count)
 	cycles = 1;
 	cycles_test = 1;
 	stack = NULL;
-	win1 = NULL;
-	win2 = NULL;
 	DIE = CYCLE_TO_DIE;
 	max_checks = 0;
-	win = initscr();
 	map = get_map(players, count, &cycles);
+	win1 = NULL;
+	win2 = NULL;
+	win = initscr();
 	vizualize(map, players, &win1, win);
 	status_bar(&win2, players);
 	curs_set(0);
@@ -296,18 +293,18 @@ void	go_vm(t_players *players, int count)
 		get_stop(&(players[i++]), map);
 	while (DIE > 0)
 	{
-		i = 0;
-		while (players[i].header.prog_name[0] != '\0')
-		{
-			if (players[i].comands != NULL)
-				get_command(&(players[i]), map, &stack, players);
-			i++;
-		}
 		tmp = stack;
 		while (tmp != NULL)
 		{
 			get_command(tmp, map, &stack, players);
 			tmp = tmp->next;
+		}
+		i = count - 1;
+		while (i >= 0)
+		{
+			if (players[i].comands != NULL)
+				get_command(&(players[i]), map, &stack, players);
+			i--;
 		}
 		if (cycles_test >= DIE)
 		{
@@ -327,11 +324,11 @@ void	go_vm(t_players *players, int count)
 		status_bar(&win2, players);
 		cursor_refresh_stack(win1, win2, stack, map);
 		wrefresh(win1);
-		usleep(5000);
+		usleep(1000);
 		cycles++;
 		cycles_test++;
 	}
-	end_game(players, map, &stack, 'e');
+	end_game(players, map, &stack);
 	delwin(win1);
 	delwin(win2);
 	delwin(win);
@@ -349,7 +346,7 @@ void	start_vm(t_players **tmp, int count, t_flags *flags)
 	{
 		players[i] = **tmp;
 		players[i].num *= -1;
-		players[i].pos = 0 + ((players[i].num * -1 - 1) * (MEM_SIZE / count));
+		players[i].pos = 0 + (i * (MEM_SIZE / count));
 		players[i].reg[0] = players[i].num;
 		tmp1 = (*tmp)->next;
 		free(*tmp);
