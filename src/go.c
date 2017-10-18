@@ -140,25 +140,33 @@ int 	get_last(t_players *players)
 {
 	int 		i;
 	int 		res;
-	int 		last;
-	int 		pre;
+	// int 		last;
+	// int 		pre;
 
 	i = 0;
 	res = i;
-	last = 0;
-	pre = 0;
-	printf("\n");
+	// last = 0;
+	// pre = 0;
+	// printf("\n");
 	while (players[i].header.prog_name[0] != '\0')
 	{
 		printf("Contestant \'%s\' with lives = %d | with last live on cycle - %d\n", players[i].header.prog_name, players[i].live + players[i].live_amount, players[i].last_live);
-		pre = players[i].last_live;
-		if (last < pre)
-		{
-			last = pre;
+		if (*(players[i].last_herro) == players[i].num)
 			res = i;
-		}
 		i++;
 	}
+	// i = 0;
+	// while (players[i].header.prog_name[0] != '\0')
+	// {
+	// 	// printf("Contestant \'%s\' with lives = %d | with last live on cycle - %d\n", players[i].header.prog_name, players[i].live + players[i].live_amount, players[i].last_live);
+	// 	pre = players[i].last_live;
+	// 	if (last < pre)
+	// 	{
+	// 		last = pre;
+	// 		res = i;
+	// 	}
+	// 	i++;
+	// }
 	return (res);
 }
 
@@ -259,39 +267,35 @@ void	check_end(t_players *players, byte *map, t_players **stack)
 		end_game(players, map, stack);
 }
 
-void	go_vm(t_players *players, int count)
+void	go_vm(t_players *players, int count, t_flags *flags)
 {
 	byte		*map;
 	t_players	*stack;
 	t_players	*tmp;
 	int			i;
-	int 		cycles;
-	int 		DIE;
-	int 		cycles_test;
-	int 		max_checks;
-	WINDOW		*win;
-	WINDOW		*win1;
-	WINDOW		*win2;
+	// WINDOW		*win;
+	// WINDOW		*win1;
+	// WINDOW		*win2;
 
 	i = 0;
-	cycles = 1;
-	cycles_test = 1;
+	flags->cycles = 1;
+	flags->cycles_test = 1;
 	stack = NULL;
-	DIE = CYCLE_TO_DIE;
-	max_checks = 0;
-	map = get_map(players, count, &cycles);
-	win1 = NULL;
-	win2 = NULL;
-	win = initscr();
-	vizualize(map, players, &win1, win);
-	status_bar(&win2, players);
-	curs_set(0);
-	getch();
-	cursor_refresh(win1, win2, players, map);
-	getch();
+	flags->DIE = CYCLE_TO_DIE;
+	flags->max_checks = 0;
+	map = get_map(players, count, &(flags->cycles));
+	// win1 = NULL;
+	// win2 = NULL;
+	// win = initscr();
+	// vizualize(map, players, &win1, win);
+	// status_bar(&win2, players);
+	// curs_set(0);
+	// getch();
+	// cursor_refresh(win1, win2, players, map);
+	// getch();
 	while (players[i].header.prog_name[0] != '\0')
 		get_stop(&(players[i++]), map);
-	while (DIE > 0)
+	while (flags->DIE > 0)
 	{
 		tmp = stack;
 		while (tmp != NULL)
@@ -306,33 +310,33 @@ void	go_vm(t_players *players, int count)
 				get_command(&(players[i]), map, &stack, players);
 			i--;
 		}
-		if (cycles_test >= DIE)
+		if (flags->cycles_test >= flags->DIE)
 		{
 			i = 0;
-			if (get_lives(players) >= NBR_LIVE || max_checks == 10)
+			if (get_lives(players) >= NBR_LIVE || flags->max_checks == 10)
 			{
-				DIE -= CYCLE_DELTA;
-				max_checks = 0;
+				flags->DIE -= CYCLE_DELTA;
+				flags->max_checks = 0;
 			}
 			else
-				max_checks++;
+				flags->max_checks++;
 			check_end(players, map, &stack);
-			cycles_test = 1;
+			flags->cycles_test = 0;
 		}
-		refresh_map(win1, map);
-		cursor_refresh(win1, win2, players, map);
-		status_bar(&win2, players);
-		cursor_refresh_stack(win1, win2, stack, map);
-		wrefresh(win1);
-		usleep(1000);
-		cycles++;
-		cycles_test++;
+		// refresh_map(win1, map);
+		// cursor_refresh(win1, win2, players, map);
+		// status_bar(&win2, players);
+		// cursor_refresh_stack(win1, win2, stack, map);
+		// wrefresh(win1);
+		// usleep(1000);
+		flags->cycles++;
+		flags->cycles_test++;
 	}
 	end_game(players, map, &stack);
-	delwin(win1);
-	delwin(win2);
-	delwin(win);
-	endwin();
+// 	delwin(win1);
+// 	delwin(win2);
+// 	delwin(win);
+// 	endwin();
 }
 
 void	start_vm(t_players **tmp, int count, t_flags *flags)
@@ -348,6 +352,7 @@ void	start_vm(t_players **tmp, int count, t_flags *flags)
 		players[i].num *= -1;
 		players[i].pos = 0 + (i * (MEM_SIZE / count));
 		players[i].reg[0] = players[i].num;
+		players[i].last_herro = &(flags->base);
 		tmp1 = (*tmp)->next;
 		free(*tmp);
 		tmp = &tmp1;
@@ -356,6 +361,5 @@ void	start_vm(t_players **tmp, int count, t_flags *flags)
 	players[count].header.prog_name[0] = '\0';
 	players[count].comands = NULL;
 	tmp = NULL;
-	flags = NULL;
-	go_vm(players, count);
+	go_vm(players, count, flags);
 }

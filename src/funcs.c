@@ -96,6 +96,8 @@ void		fork_func(t_players *player, byte *map, t_players **stack)
 	tmp->live = player->live;
 	tmp->live_amount = player->live_amount;
 	tmp->cycles = player->cycles;
+	tmp->num = player->num;
+	tmp->last_herro = player->last_herro;
 	if (player->pos + dir < 0)
 		dir = MAP_SIZE + dir;
 	tmp->pos = (player->pos + dir) % MAP_SIZE;
@@ -126,6 +128,7 @@ void	lfork_func(t_players *player, byte *map, t_players **stack)
 	tmp->pos = (player->pos + dir) % MAP_SIZE;
 	get_stop(tmp, map);
 	tmp->cycles = player->cycles;
+	tmp->last_herro = player->last_herro;
 	tmp->num = player->num;
 	tmp->carry = player->carry;
 	tmp->num = 0;
@@ -227,15 +230,19 @@ void	live(t_players *players, byte *map, t_players *player)
 		{
 			players[i].live += 1;
 			players[i].last_live = *(players[i].cycles);
+			*(players[i].last_herro) = player->num;
 			if (ft_strnstr(player->header.prog_name, "fork", 4))
 				player->live_amount += 1;
 			player->pos += 5;
+			// printf("Last live by - %d\n", players[i].num);
 			return ;
 		}
 		i++;
 	}
 	player->live_amount += 1;
 	player->last_live = *(player->cycles);
+	*(player->last_herro) = player->num;
+	// printf("Last live by - %d |\n", player->num);
 	(*player).pos += 5;
 }
 

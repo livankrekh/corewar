@@ -43,6 +43,7 @@ struct					s_players
 	int					stop;
 	int					carry;
 	int					*cycles;
+	int					*last_herro;
 	int					last_live;
 	t_players			*next;
 };
@@ -53,6 +54,11 @@ typedef struct			s_flags
 	int					dump;
 	int					amount_players;
 	int					amount_num;
+	int					base;
+	int					cycles;
+	int					DIE;
+	int					cycles_test;
+	int					max_checks;
 }						t_flags;
 
 void					print_comands(void);

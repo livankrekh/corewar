@@ -9,6 +9,7 @@ t_flags *create_flags(void)
 	flags->visual = 0;
 	flags->amount_players = 0;
 	flags->amount_num = 0;
+	flags->base = 0;
 	return (flags);
 }
 
@@ -27,6 +28,7 @@ t_players *create_players(void)
 	players->carry = 0;
 	players->cycles = NULL;
 	players->last_live = 0;
+	players->last_herro = NULL;
 	players->next = NULL;
 	return (players);
 }
