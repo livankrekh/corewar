@@ -147,10 +147,10 @@ int 	get_last(t_players *players)
 	res = i;
 	last = 0;
 	pre = 0;
-	// printf("\n");
+	printf("\n");
 	while (players[i].header.prog_name[0] != '\0')
 	{
-		// printf("Contestant \'%s\' with lives = %d | with last live on cycle - %d\n", players[i].header.prog_name, players[i].live + players[i].live_amount, players[i].last_live);
+		printf("Contestant \'%s\' with lives = %d | with last live on cycle - %d\n", players[i].header.prog_name, players[i].live + players[i].live_amount, players[i].last_live);
 		pre = players[i].last_live;
 		if (last < pre)
 		{

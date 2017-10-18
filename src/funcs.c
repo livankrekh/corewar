@@ -68,7 +68,10 @@ void		aff(t_players *player, byte *map)
 
 	reg = get_REG(player, player->pos + 2, map);
 	if (reg < 32 || reg > 127)
+	{
+		player->pos += 3;
 		return ;
+	}
 	ft_putstr("Player #");
 	ft_putnbr(player->num);
 	ft_putstr(" says: ");
@@ -123,6 +126,7 @@ void	lfork_func(t_players *player, byte *map, t_players **stack)
 	tmp->pos = (player->pos + dir) % MAP_SIZE;
 	get_stop(tmp, map);
 	tmp->cycles = player->cycles;
+	tmp->num = player->num;
 	tmp->carry = player->carry;
 	tmp->num = 0;
 	player->pos += 3;
@@ -190,6 +194,8 @@ void	and_xor(t_players *player, byte *map, char flag)
 		player->carry = 1;
 	else if (flag == 'x' && (r1 ^ r2) == 0)
 		player->carry = 1;
+	else
+		player->carry = 0;
 }
 
 void	zjmp(t_players *player, byte *map)
@@ -205,7 +211,7 @@ void	zjmp(t_players *player, byte *map)
 			player->pos += jmp % MAP_SIZE;
 	}
 	else
-		player->pos += 5;
+		player->pos += 3;
 }
 
 void	live(t_players *players, byte *map, t_players *player)
@@ -377,11 +383,16 @@ void	sub(t_players *player, byte *map)
 	r1 = get_REG(player, player->pos + 2, map);
 	r2 = get_REG(player, player->pos + 3, map);
 	if (map[(player->pos + 4) % MAP_SIZE] < 1 || map[(player->pos + 4) % MAP_SIZE] > REG_NUMBER)
+	{
+		player->pos += 5;
 		return ;
+	}
 	player->reg[map[player->pos + 4] - 1] = r1 - r2;
 	player->pos += 5;
 	if (r1 - r2 == 0)
 		player->carry = 1;
+	else
+		player->carry = 0;
 }
 
 void	add(t_players *player, byte *map)
@@ -400,6 +411,8 @@ void	add(t_players *player, byte *map)
 	player->pos += 5;
 	if (r1 + r2 == 0)
 		player->carry = 1;
+	else
+		player->carry = 0;
 }
 
 void	st(t_players *player, byte *map)
@@ -460,10 +473,12 @@ void	ld(t_players *player, byte *map)
 		player->pos += posit + 2;
 		return ;
 	}
-	player->reg[map[(player->pos + posit + 1) % MAP_SIZE] - 1] = (unsigned int)r1;
+	player->reg[map[(player->pos + posit + 1) % MAP_SIZE] - 1] = r1;
 	player->pos += posit + 2;
 	if (r1 == 0)
 		player->carry = 1;
+	else
+		player->carry = 0;
 }
 
 void	lldi(t_players *player, byte *map)
@@ -514,6 +529,8 @@ void	lldi(t_players *player, byte *map)
 	player->pos += ++posit + 1;
 	if (get_TDIR(4, (player->pos + r1 + r2) % MAP_SIZE, map) == 0)
 		player->carry = 1;
+	else
+		player->carry = 0;
 }
 
 void	lld(t_players *player, byte *map)
@@ -545,4 +562,6 @@ void	lld(t_players *player, byte *map)
 	player->pos += ++posit + 1;
 	if (r1 == 0)
 		player->carry = 1;
+	else
+		player->carry = 0;
 }
