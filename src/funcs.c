@@ -87,6 +87,8 @@ void		fork_func(t_players *player, byte *map, t_players **stack)
 
 	dir = (short int)get_TDIR(2, player->pos + 1, map) % IDX_MOD;
 	tmp = (t_players*)malloc(sizeof(t_players));
+	if (*stack == NULL)
+		tmp->next = NULL;
 	tmp->next = *stack;
 	*stack = tmp;
 	ft_strncpy(tmp->header.prog_name, "fork", 4);
@@ -131,7 +133,6 @@ void	lfork_func(t_players *player, byte *map, t_players **stack)
 	tmp->last_herro = player->last_herro;
 	tmp->num = player->num;
 	tmp->carry = player->carry;
-	tmp->num = 0;
 	player->pos += 3;
 }
 
@@ -316,17 +317,17 @@ void	sti(t_players *player, byte *map)
 	free(binary);
 	if (player->pos + ((r1 + r2) % IDX_MOD) < 0)
 	{
-		map[MAP_SIZE + (player->pos + ((r1 + r2) % IDX_MOD))] = (unsigned int)get_REG(player, player->pos + 2, map) / 0x1000000;
-		map[MAP_SIZE + (player->pos + ((r1 + r2) % IDX_MOD + 1))] = ((unsigned int)get_REG(player, player->pos + 2, map) / 0x10000) & 0xFF;
-		map[MAP_SIZE + (player->pos + ((r1 + r2) % IDX_MOD + 2))] = ((unsigned int)get_REG(player, player->pos + 2, map) / 0x100) & 0xFF;
-		map[MAP_SIZE + (player->pos + ((r1 + r2) % IDX_MOD + 3))] = (unsigned int)get_REG(player, player->pos + 2, map) % 0x100;
+		map[(MAP_SIZE + (player->pos + ((r1 + r2) % IDX_MOD))) % MAP_SIZE] = (unsigned int)get_REG(player, player->pos + 2, map) / 0x1000000;
+		map[(MAP_SIZE + (player->pos + ((r1 + r2) % IDX_MOD + 1))) % MAP_SIZE] = ((unsigned int)get_REG(player, player->pos + 2, map) / 0x10000) & 0xFF;
+		map[(MAP_SIZE + (player->pos + ((r1 + r2) % IDX_MOD + 2))) % MAP_SIZE] = ((unsigned int)get_REG(player, player->pos + 2, map) / 0x100) & 0xFF;
+		map[(MAP_SIZE + (player->pos + ((r1 + r2) % IDX_MOD + 3))) % MAP_SIZE] = (unsigned int)get_REG(player, player->pos + 2, map) % 0x100;
 	}
 	else
 	{
-		map[player->pos + ((r1 + r2) % IDX_MOD)] = (unsigned int)get_REG(player, player->pos + 2, map) / 0x1000000;
-		map[player->pos + ((r1 + r2) % IDX_MOD + 1)] = ((unsigned int)get_REG(player, player->pos + 2, map) / 0x10000) & 0xFF;
-		map[player->pos + ((r1 + r2) % IDX_MOD + 2)] = ((unsigned int)get_REG(player, player->pos + 2, map) / 0x100) & 0xFF;
-		map[player->pos + ((r1 + r2) % IDX_MOD + 3)] = (unsigned int)get_REG(player, player->pos + 2, map) % 0x100;
+		map[(player->pos + ((r1 + r2) % IDX_MOD)) % MAP_SIZE] = (unsigned int)get_REG(player, (player->pos) % MAP_SIZE + 2, map) / 0x1000000;
+		map[(player->pos + ((r1 + r2) % IDX_MOD + 1)) % MAP_SIZE] = ((unsigned int)get_REG(player, player->pos + 2, map) / 0x10000) & 0xFF;
+		map[(player->pos + ((r1 + r2) % IDX_MOD + 2)) % MAP_SIZE] = ((unsigned int)get_REG(player, player->pos + 2, map) / 0x100) & 0xFF;
+		map[(player->pos + ((r1 + r2) % IDX_MOD + 3)) % MAP_SIZE] = (unsigned int)get_REG(player, player->pos + 2, map) % 0x100;
 	}
 	player->pos += posit + 1;
 }
@@ -379,7 +380,7 @@ void	ldi(t_players *player, byte *map)
 		player->reg[map[player->pos + posit + 1] - 1] = get_TDIR(4, MAP_SIZE + player->pos + ((r1 + r2) % IDX_MOD), map);
 	else
 		player->reg[map[player->pos + posit + 1] - 1] = get_TDIR(4, player->pos + ((r1 + r2) % IDX_MOD), map);
-	player->pos += ++posit + 1;
+	player->pos += posit + 2;
 }
 
 void	sub(t_players *player, byte *map)
@@ -529,11 +530,11 @@ void	lldi(t_players *player, byte *map)
 	free(binary);
 	if (map[(player->pos + posit + 1) % MAP_SIZE] < 1 || map[(player->pos + posit + 1) % MAP_SIZE] > REG_NUMBER)
 	{
-		player->pos += ++posit + 1;
+		player->pos += posit + 2;
 		return ;
 	}
 	player->reg[map[player->pos + posit + 1] - 1] = get_TDIR(4, (player->pos + r1 + r2) % MAP_SIZE, map);
-	player->pos += ++posit + 1;
+	player->pos += posit + 2;
 	if (get_TDIR(4, (player->pos + r1 + r2) % MAP_SIZE, map) == 0)
 		player->carry = 1;
 	else

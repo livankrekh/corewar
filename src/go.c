@@ -140,14 +140,9 @@ int 	get_last(t_players *players)
 {
 	int 		i;
 	int 		res;
-	// int 		last;
-	// int 		pre;
 
 	i = 0;
 	res = i;
-	// last = 0;
-	// pre = 0;
-	// printf("\n");
 	while (players[i].header.prog_name[0] != '\0')
 	{
 		printf("Contestant \'%s\' with lives = %d | with last live on cycle - %d\n", players[i].header.prog_name, players[i].live + players[i].live_amount, players[i].last_live);
@@ -155,18 +150,6 @@ int 	get_last(t_players *players)
 			res = i;
 		i++;
 	}
-	// i = 0;
-	// while (players[i].header.prog_name[0] != '\0')
-	// {
-	// 	// printf("Contestant \'%s\' with lives = %d | with last live on cycle - %d\n", players[i].header.prog_name, players[i].live + players[i].live_amount, players[i].last_live);
-	// 	pre = players[i].last_live;
-	// 	if (last < pre)
-	// 	{
-	// 		last = pre;
-	// 		res = i;
-	// 	}
-	// 	i++;
-	// }
 	return (res);
 }
 
@@ -212,6 +195,19 @@ int 	get_lives(t_players *players)
 	return (res);
 }
 
+int 	check_count_proccess(t_players *stack)
+{
+	int 	res;
+
+	res = 0;
+	while (stack)
+	{
+		res++;
+		stack = stack->next;
+	}
+	return (res);
+}
+
 void	check_dead_proccess(t_players **stack)
 {
 	t_players	*tmp;
@@ -228,6 +224,7 @@ void	check_dead_proccess(t_players **stack)
 			else
 				tmp2->next = tmp->next;
 			free(tmp->reg);
+			tmp->reg = NULL;
 			free(tmp);
 			if (tmp2 == NULL)
 				tmp = *stack;
@@ -242,6 +239,8 @@ void	check_dead_proccess(t_players **stack)
 			tmp = tmp->next;
 		}
 	}
+	// printf("______________________________________________________________\n");
+	// printf("COUNT PROCCESS = %d\n", check_count_proccess(*stack));
 }
 
 void	check_end(t_players *players, byte *map, t_players **stack)
@@ -254,7 +253,8 @@ void	check_end(t_players *players, byte *map, t_players **stack)
 	{
 		if (players[i].live + players[i].live_amount == 0 && players[i].comands != NULL)
 		{
-			free(players[i].comands);
+			if (players[i].comands != NULL)
+				free(players[i].comands);
 			players[i].comands = NULL;
 		}
 		players[i].live = 0;
@@ -273,9 +273,9 @@ void	go_vm(t_players *players, int count, t_flags *flags)
 	t_players	*stack;
 	t_players	*tmp;
 	int			i;
-	// WINDOW		*win;
-	// WINDOW		*win1;
-	// WINDOW		*win2;
+	WINDOW		*win;
+	WINDOW		*win1;
+	WINDOW		*win2;
 
 	i = 0;
 	flags->cycles = 1;
@@ -284,19 +284,21 @@ void	go_vm(t_players *players, int count, t_flags *flags)
 	flags->DIE = CYCLE_TO_DIE;
 	flags->max_checks = 0;
 	map = get_map(players, count, &(flags->cycles));
-	// win1 = NULL;
-	// win2 = NULL;
-	// win = initscr();
-	// vizualize(map, players, &win1, win);
-	// status_bar(&win2, players);
-	// curs_set(0);
-	// getch();
-	// cursor_refresh(win1, win2, players, map);
-	// getch();
+	win1 = NULL;
+	win2 = NULL;
+	win = initscr();
+	vizualize(map, players, &win1, win);
+	status_bar(&win2, players);
+	curs_set(0);
+	getch();
+	cursor_refresh(win1, win2, players, map);
+	getch();
 	while (players[i].header.prog_name[0] != '\0')
 		get_stop(&(players[i++]), map);
 	while (flags->DIE > 0)
 	{
+		if (flags->cycles == 1900)
+			getch();
 		tmp = stack;
 		while (tmp != NULL)
 		{
@@ -323,20 +325,20 @@ void	go_vm(t_players *players, int count, t_flags *flags)
 			check_end(players, map, &stack);
 			flags->cycles_test = 0;
 		}
-		// refresh_map(win1, map);
-		// cursor_refresh(win1, win2, players, map);
-		// status_bar(&win2, players);
-		// cursor_refresh_stack(win1, win2, stack, map);
-		// wrefresh(win1);
-		// usleep(1000);
+		refresh_map(win1, map);
+		cursor_refresh(win1, win2, players, map);
+		status_bar(&win2, players);
+		cursor_refresh_stack(win1, win2, stack, map);
+		wrefresh(win1);
+		usleep(100000);
 		flags->cycles++;
 		flags->cycles_test++;
 	}
 	end_game(players, map, &stack);
-// 	delwin(win1);
-// 	delwin(win2);
-// 	delwin(win);
-// 	endwin();
+	delwin(win1);
+	delwin(win2);
+	delwin(win);
+	endwin();
 }
 
 void	start_vm(t_players **tmp, int count, t_flags *flags)
@@ -356,6 +358,7 @@ void	start_vm(t_players **tmp, int count, t_flags *flags)
 		tmp1 = (*tmp)->next;
 		free(*tmp);
 		tmp = &tmp1;
+		// printf("NUMB = %d || NAME = %s || POS = %d\n", players[i].num, players[i].header.prog_name, players[i].pos);
 		i++;
 	}
 	players[count].header.prog_name[0] = '\0';
