@@ -29,6 +29,7 @@ t_players *create_players(void)
 	players->cycles = NULL;
 	players->last_live = 0;
 	players->last_herro = NULL;
+	players->curr_com = 0;
 	players->next = NULL;
 	return (players);
 }

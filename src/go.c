@@ -21,6 +21,7 @@ void	get_stop(t_players *player, byte *map)
 		player->stop = stop[map[player->pos] - 1];
 	else
 		player->stop = 0;
+	player->curr_com = map[player->pos];
 }
 
 void	delete_split(char ***split)
@@ -77,41 +78,41 @@ void	get_command(t_players *player, byte *map, t_players **stack, t_players *pla
 {
 	if (player->stop == 0)
 	{
-		if (map[player->pos] == 1)
+		if (player->curr_com == 1)
 			live(players, map, player);
-		else if (map[player->pos] == 2)
+		else if (player->curr_com == 2)
 			ld(player, map);
-		else if (map[player->pos] == 3)
+		else if (player->curr_com == 3)
 			st(player, map);
-		else if (map[player->pos] == 4)
+		else if (player->curr_com == 4)
 			add(player, map);
-		else if (map[player->pos] == 5)
+		else if (player->curr_com == 5)
 			sub(player, map);
-		else if (map[player->pos] == 6)
+		else if (player->curr_com == 6)
 			and_xor(player, map, 'a');
-		else if (map[player->pos] == 7)
+		else if (player->curr_com == 7)
 			and_xor(player, map, 'o');
-		else if (map[player->pos] == 8)
+		else if (player->curr_com == 8)
 			and_xor(player, map, 'x');
-		else if (map[player->pos] == 9)
+		else if (player->curr_com == 9)
 			zjmp(player, map);
-		else if (map[player->pos] == 10)
+		else if (player->curr_com == 10)
 			ldi(player, map);
-		else if (map[player->pos] == 11)
+		else if (player->curr_com == 11)
 			sti(player, map);
-		else if (map[player->pos] == 12)
+		else if (player->curr_com == 12)
 			fork_func(player, map, stack);
-		else if (map[player->pos] == 13)
+		else if (player->curr_com == 13)
 			lld(player, map);
-		else if (map[player->pos] == 14)
+		else if (player->curr_com == 14)
 			lldi(player, map);
-		else if (map[player->pos] == 15)
+		else if (player->curr_com == 15)
 			lfork_func(player, map, stack);
-		else if (map[player->pos] == 16)
+		else if (player->curr_com == 16)
 			aff(player, map);
 		else
 			player->pos += 1;
-		player->pos = player->pos % (MEM_SIZE - 1);
+		player->pos = player->pos % MEM_SIZE;
 		get_stop(player, map);
 	}
 	else
@@ -228,6 +229,8 @@ void	check_dead_proccess(t_players **stack)
 			free(tmp);
 			if (tmp2 == NULL)
 				tmp = *stack;
+			// else if (tmp2 == NULL)
+			// 	return ;
 			else
 				tmp = tmp2->next;
 		}
@@ -246,24 +249,23 @@ void	check_dead_proccess(t_players **stack)
 void	check_end(t_players *players, byte *map, t_players **stack)
 {
 	int 		i;
-	t_players	*tmp;
 
 	i = 0;
 	while (players[i].header.prog_name[0] != '\0')
 	{
 		if (players[i].live + players[i].live_amount == 0 && players[i].comands != NULL)
 		{
-			if (players[i].comands != NULL)
-				free(players[i].comands);
+			free(players[i].comands);
 			players[i].comands = NULL;
 		}
 		players[i].live = 0;
 		players[i].live_amount = 0;
 		i++;
 	}
-	tmp = *stack;
 	check_dead_proccess(stack);
-	if (get_alive_players(players) == 0 && tmp == NULL)
+	// printf("Process adress = %p\n", *stack);
+	// printf("Live processes - %d || live players = %d\n", check_count_proccess(tmp), get_alive_players(players));
+	if (get_alive_players(players) == 0 && *stack == NULL)
 		end_game(players, map, stack);
 }
 
@@ -273,9 +275,9 @@ void	go_vm(t_players *players, int count, t_flags *flags)
 	t_players	*stack;
 	t_players	*tmp;
 	int			i;
-	WINDOW		*win;
-	WINDOW		*win1;
-	WINDOW		*win2;
+	// WINDOW		*win;
+	// WINDOW		*win1;
+	// WINDOW		*win2;
 
 	i = 0;
 	flags->cycles = 1;
@@ -284,21 +286,21 @@ void	go_vm(t_players *players, int count, t_flags *flags)
 	flags->DIE = CYCLE_TO_DIE;
 	flags->max_checks = 0;
 	map = get_map(players, count, &(flags->cycles));
-	win1 = NULL;
-	win2 = NULL;
-	win = initscr();
-	vizualize(map, players, &win1, win);
-	status_bar(&win2, players);
-	curs_set(0);
-	getch();
-	cursor_refresh(win1, win2, players, map);
-	getch();
+	// win1 = NULL;
+	// win2 = NULL;
+	// win = initscr();
+	// vizualize(map, players, &win1, win);
+	// status_bar(&win2, players);
+	// curs_set(0);
+	// getch();
+	// cursor_refresh(win1, win2, players, map);
+	// getch();
 	while (players[i].header.prog_name[0] != '\0')
 		get_stop(&(players[i++]), map);
 	while (flags->DIE > 0)
 	{
-		if (flags->cycles == 1900)
-			getch();
+		// if (flags->cycles == 1900)
+		// 	getch();
 		tmp = stack;
 		while (tmp != NULL)
 		{
@@ -325,20 +327,20 @@ void	go_vm(t_players *players, int count, t_flags *flags)
 			check_end(players, map, &stack);
 			flags->cycles_test = 0;
 		}
-		refresh_map(win1, map);
-		cursor_refresh(win1, win2, players, map);
-		status_bar(&win2, players);
-		cursor_refresh_stack(win1, win2, stack, map);
-		wrefresh(win1);
-		usleep(100000);
+		// refresh_map(win1, map);
+		// cursor_refresh(win1, win2, players, map);
+		// status_bar(&win2, players);
+		// cursor_refresh_stack(win1, win2, stack, map);
+		// wrefresh(win1);
+		// usleep(1000);
 		flags->cycles++;
 		flags->cycles_test++;
 	}
 	end_game(players, map, &stack);
-	delwin(win1);
-	delwin(win2);
-	delwin(win);
-	endwin();
+	// delwin(win1);
+	// delwin(win2);
+	// delwin(win);
+	// endwin();
 }
 
 void	start_vm(t_players **tmp, int count, t_flags *flags)

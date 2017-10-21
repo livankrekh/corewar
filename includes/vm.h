@@ -43,6 +43,7 @@ struct					s_players
 	int					stop;
 	int					carry;
 	int					*cycles;
+	int					curr_com;
 	int					*last_herro;
 	int					last_live;
 	t_players			*next;
