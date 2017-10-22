@@ -14,12 +14,9 @@ NAME1 = corewar
 CC = gcc
 SRC = src/go.c src/funcs.c src/vizualize.c src/viz_dop.c \
 	src/create_fun.c src/get_flags.c src/get_players.c src/help_func.c src/main.c \
-	src/print_func.c
+	src/print_func.c src/funcs_forks.c src/funcs_ld.c src/funcs_st.c src/funcs_math.c
 LIB = libft/libft.a
 FLAGS = -Wall -Wextra -Werror
-# SDL_FLAG = -F. -framework SDL2
-# SDL_mixer = -I /vm/SDL2_mixer.framework/Versions/A/Headers \
-# 			-F ./ -framework SDL2_mixer
 
 
 .PHONY: all re clean fclean

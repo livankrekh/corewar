@@ -9,7 +9,14 @@ t_flags *create_flags(void)
 	flags->visual = 0;
 	flags->amount_players = 0;
 	flags->amount_num = 0;
-	flags->base = 0;
+    flags->paused = 1;
+    flags->process = 0;
+    flags->speed = 1;
+    flags->base = 0;
+    flags->cycles = 0;
+    flags->DIE = 0;
+    flags->cycles_test = 0;
+    flags->max_checks = 0;
 	return (flags);
 }
 

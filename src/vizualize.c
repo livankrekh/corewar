@@ -71,11 +71,15 @@ void	get_players_viz(WINDOW *win, byte *memory, t_players *players)
 
 void	status_bar(WINDOW **win2, t_players *players)
 {
-	int 	y;
-	int 	i;
+	int 		y;
+	int 		i;
+	int 		count;
+	t_players	*tmp;
 
 	i = 0;
 	y = 2;
+	count = 0;
+	tmp = copy;
 	*win2 = newwin(69, 57, 0, 198);
 	box(*win2, 0, 0);
 	while (players[i].header.prog_name[0] != '\0')
@@ -98,6 +102,13 @@ void	status_bar(WINDOW **win2, t_players *players)
 	}
 	wmove(*win2, y + 2, 2);
 	wprintw(*win2, "CYCLES: %d", *(players[0].cycles));
+	while (tmp)
+	{
+		count++;
+		tmp = tmp->next;
+	}
+	wmove(*win2, y + 4, 2);
+	wprintw(*win2, "Processes: %d", count);
 	wrefresh(*win2);
 }
 

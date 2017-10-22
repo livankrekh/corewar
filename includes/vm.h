@@ -26,6 +26,7 @@
 # define HEX "0123456789abcdef"
 # include <fcntl.h>
 # include <unistd.h>
+# define MAP_SIZE (MEM_SIZE - 1)
 
 typedef	unsigned char 		byte;
 typedef	int					t_bool;
@@ -55,12 +56,17 @@ typedef struct			s_flags
 	int					dump;
 	int					amount_players;
 	int					amount_num;
+	int					paused;
+	int					process;
+	int					speed;
 	int					base;
 	int					cycles;
 	int					DIE;
 	int					cycles_test;
 	int					max_checks;
 }						t_flags;
+
+t_players	*copy;
 
 void					print_comands(void);
 void					print_data_players(t_players **players);
@@ -95,5 +101,9 @@ void					refresh_map(WINDOW *win1, byte *map);
 void					aff(t_players *player, byte *map);
 void					start_vm(t_players **tmp, int count, t_flags *flags);
 void					get_stop(t_players *player, byte *map);
+int 					translate(byte r1, byte r2, byte r3, byte r4);
+int						get_TDIR(int n, int posit, byte *map);
+int						get_REG(t_players *player, int posit, byte *map);
+short int				get_INDIR(t_players *player, char flag, int posit, byte *map);
 
 #endif

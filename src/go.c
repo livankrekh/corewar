@@ -146,11 +146,14 @@ int 	get_last(t_players *players)
 	res = i;
 	while (players[i].header.prog_name[0] != '\0')
 	{
-		printf("Contestant \'%s\' with lives = %d | with last live on cycle - %d\n", players[i].header.prog_name, players[i].live + players[i].live_amount, players[i].last_live);
+		printf("Player #%d \'%s\' with last_live = %d\n", i + 1, players[i].header.prog_name, players[i].last_live);
 		if (*(players[i].last_herro) == players[i].num)
 			res = i;
+		if (players[i].comands != NULL)
+			free(players[i].comands);
 		i++;
 	}
+	printf("LAST CYCLE = %d\n", *(players[0].cycles));
 	return (res);
 }
 
@@ -173,11 +176,14 @@ void	end_game(t_players *players, byte *map, t_players **stack)
 	}
 	*stack = NULL;
 	i = get_last(players);
-	ft_putstr("Contestant #");
-	ft_putnbr(players[i].num);
-	ft_putstr(", \"");
-	ft_putstr(players[i].header.prog_name);
-	ft_putstr("\", has won!\n");
+	printf("Contestant %d \'%s\', has won!\n", players[i].num * -1, players[i].header.prog_name);
+	i = 0;
+	while (players[i].header.prog_name[0] != '\0')
+	{
+		free(players[i].reg);
+		players[i].reg = NULL;
+		i++;
+	}
 	exit(1);
 }
 
@@ -242,8 +248,6 @@ void	check_dead_proccess(t_players **stack)
 			tmp = tmp->next;
 		}
 	}
-	// printf("______________________________________________________________\n");
-	// printf("COUNT PROCCESS = %d\n", check_count_proccess(*stack));
 }
 
 void	check_end(t_players *players, byte *map, t_players **stack)
@@ -263,10 +267,23 @@ void	check_end(t_players *players, byte *map, t_players **stack)
 		i++;
 	}
 	check_dead_proccess(stack);
-	// printf("Process adress = %p\n", *stack);
-	// printf("Live processes - %d || live players = %d\n", check_count_proccess(tmp), get_alive_players(players));
 	if (get_alive_players(players) == 0 && *stack == NULL)
 		end_game(players, map, stack);
+}
+
+void	print_map(byte *map)
+{
+	int 	i;
+
+	i = 0;
+	while (i < MEM_SIZE)
+	{
+		if (i % 64 == 0)
+			printf("\n0x%04x : ", i);
+		printf("%02x ", map[i]);
+		i++;
+	}
+	printf("\n\n");
 }
 
 void	go_vm(t_players *players, int count, t_flags *flags)
@@ -282,6 +299,7 @@ void	go_vm(t_players *players, int count, t_flags *flags)
 	i = 0;
 	flags->cycles = 1;
 	flags->cycles_test = 1;
+	copy = NULL;
 	stack = NULL;
 	flags->DIE = CYCLE_TO_DIE;
 	flags->max_checks = 0;
@@ -299,8 +317,10 @@ void	go_vm(t_players *players, int count, t_flags *flags)
 		get_stop(&(players[i++]), map);
 	while (flags->DIE > 0)
 	{
-		// if (flags->cycles == 1900)
+		// if (flags->cycles >= 2640 && flags->cycles <= 2700)
 		// 	getch();
+		if (flags->dump == flags->cycles)
+			print_map(map);
 		tmp = stack;
 		while (tmp != NULL)
 		{
@@ -327,12 +347,13 @@ void	go_vm(t_players *players, int count, t_flags *flags)
 			check_end(players, map, &stack);
 			flags->cycles_test = 0;
 		}
+		copy = stack;
 		// refresh_map(win1, map);
 		// cursor_refresh(win1, win2, players, map);
 		// status_bar(&win2, players);
 		// cursor_refresh_stack(win1, win2, stack, map);
 		// wrefresh(win1);
-		// usleep(1000);
+		// usleep(10000);
 		flags->cycles++;
 		flags->cycles_test++;
 	}
@@ -360,7 +381,6 @@ void	start_vm(t_players **tmp, int count, t_flags *flags)
 		tmp1 = (*tmp)->next;
 		free(*tmp);
 		tmp = &tmp1;
-		// printf("NUMB = %d || NAME = %s || POS = %d\n", players[i].num, players[i].header.prog_name, players[i].pos);
 		i++;
 	}
 	players[count].header.prog_name[0] = '\0';

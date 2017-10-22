@@ -202,7 +202,8 @@ int		main(int argc, char **argv)
 	if ((get_players(players, argv, argc, flags) == 0))
         return (0);
     change_first_reg_players(&players);
-    print_data_players(&players);
+    if (flags->visual == 0)
+        print_data_players(&players);
     // if ((ft_swap_players(&players, flags->amount_players) == 0))
     //     return (0);
 	start_vm(&players, flags->amount_players, flags);
