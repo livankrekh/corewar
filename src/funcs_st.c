@@ -50,10 +50,11 @@ void	st(t_players *player, byte *map)
 
 void	sti(t_players *player, byte *map)
 {
-	char	*binary;
-	int		r1;
-	int		r2;
-	int		posit;
+	char				*binary;
+	int					r1;
+	int					r2;
+	int					posit;
+	unsigned int		r3;
 
 	if (check_oppcode(player, map) == 0)
 		return ;
@@ -90,19 +91,20 @@ void	sti(t_players *player, byte *map)
 	}
 	binary -= 4;
 	free(binary);
+	r3 = (unsigned int)get_REG(player, player->pos + 2, map);
 	if (player->pos + ((r1 + r2) % IDX_MOD) < 0)
 	{
-		map[(MEM_SIZE + (player->pos + ((r1 + r2) % IDX_MOD))) % MEM_SIZE] = (unsigned int)get_REG(player, player->pos + 2, map) / 0x1000000;
-		map[(MEM_SIZE + (player->pos + ((r1 + r2) % IDX_MOD + 1))) % MEM_SIZE] = ((unsigned int)get_REG(player, player->pos + 2, map) / 0x10000) & 0xFF;
-		map[(MEM_SIZE + (player->pos + ((r1 + r2) % IDX_MOD + 2))) % MEM_SIZE] = ((unsigned int)get_REG(player, player->pos + 2, map) / 0x100) & 0xFF;
-		map[(MEM_SIZE + (player->pos + ((r1 + r2) % IDX_MOD + 3))) % MEM_SIZE] = (unsigned int)get_REG(player, player->pos + 2, map) % 0x100;
+		map[(MEM_SIZE + (player->pos + ((r1 + r2) % IDX_MOD))) % MEM_SIZE] = r3 / 0x1000000;
+		map[(MEM_SIZE + (player->pos + ((r1 + r2) % IDX_MOD + 1))) % MEM_SIZE] = (r3 / 0x10000) & 0xFF;
+		map[(MEM_SIZE + (player->pos + ((r1 + r2) % IDX_MOD + 2))) % MEM_SIZE] = (r3 / 0x100) & 0xFF;
+		map[(MEM_SIZE + (player->pos + ((r1 + r2) % IDX_MOD + 3))) % MEM_SIZE] = r3 % 0x100;
 	}
 	else
 	{
-		map[(player->pos + ((r1 + r2) % IDX_MOD)) % MEM_SIZE] = (unsigned int)get_REG(player, player->pos + 2, map) / 0x1000000;
-		map[(player->pos + ((r1 + r2) % IDX_MOD + 1)) % MEM_SIZE] = ((unsigned int)get_REG(player, player->pos + 2, map) / 0x10000) & 0xFF;
-		map[(player->pos + ((r1 + r2) % IDX_MOD + 2)) % MEM_SIZE] = ((unsigned int)get_REG(player, player->pos + 2, map) / 0x100) & 0xFF;
-		map[(player->pos + ((r1 + r2) % IDX_MOD + 3)) % MEM_SIZE] = (unsigned int)get_REG(player, player->pos + 2, map) % 0x100;
+		map[(player->pos + ((r1 + r2) % IDX_MOD)) % MEM_SIZE] = r3 / 0x1000000;
+		map[(player->pos + ((r1 + r2) % IDX_MOD + 1)) % MEM_SIZE] = (r3 / 0x10000) & 0xFF;
+		map[(player->pos + ((r1 + r2) % IDX_MOD + 2)) % MEM_SIZE] = (r3 / 0x100) & 0xFF;
+		map[(player->pos + ((r1 + r2) % IDX_MOD + 3)) % MEM_SIZE] = r3 % 0x100;
 	}
 	player->pos += posit + 1;
 }

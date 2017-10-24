@@ -60,6 +60,7 @@ struct					s_players
 	int					curr_com;
 	int					*last_herro;
 	int					last_live;
+	int					born_cycle;
 	t_players			*next;
 };
 

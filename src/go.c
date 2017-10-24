@@ -252,7 +252,7 @@ void	check_dead_proccess(t_players **stack)
 
 void	check_end(t_players *players, byte *map, t_players **stack)
 {
-	int 		i;
+	int 	i;
 
 	i = 0;
 	while (players[i].header.prog_name[0] != '\0')
@@ -317,8 +317,8 @@ void	go_vm(t_players *players, int count, t_flags *flags)
 		get_stop(&(players[i++]), map);
 	while (flags->DIE > 0)
 	{
-		// if (flags->cycles >= 3080 && flags->cycles <= 3300)
-		// 	getch();
+		if (flags->cycles >= 3207 && flags->cycles <= 3400)
+			getch();
 		if (flags->dump == flags->cycles)
 			print_map(map);
 		tmp = stack;
