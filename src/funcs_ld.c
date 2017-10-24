@@ -21,6 +21,8 @@ void	ld(t_players *player, byte *map)
 
 	r1 = 0;
 	posit = 1;
+	if (check_oppcode(player, map) == 0)
+		return ;
 	binary = get_binary(map, player);
 	if (ft_strnstr(binary, "10", 2))
 	{
@@ -56,6 +58,8 @@ void	ldi(t_players *player, byte *map)
 	r1 = 0;
 	r2 = 0;
 	posit = 1;
+	if (check_oppcode(player, map) == 0)
+		return ;
 	binary = get_binary(map, player);
 	if (ft_strnstr(binary, "01", 2))
 	{

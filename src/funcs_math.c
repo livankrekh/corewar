@@ -13,36 +13,12 @@
 #include "../includes/vm.h"
 #include "../includes/op.h"
 
-int		check_opp_addsub(t_players *player, byte *map)
-{
-	char	*opp;
-	int		posit;
-
-	posit = 1;
-	opp = get_binary(map, player);
-	if (ft_strnstr(opp, "01", 2))
-		posit++;
-	else
-	{
-		player->pos += posit + 1;
-		return (0);
-	}
-	if (ft_strnstr(opp + 2, "01", 2))
-		posit++;
-	else
-	{
-		player->pos += posit + 1;
-		return (0);
-	}
-	return (1);
-}
-
 void	sub(t_players *player, byte *map)
 {
 	int		r1;
 	int		r2;
 
-	if (check_opp_addsub(player, map) == 0)
+	if (check_oppcode(player, map) == 0)
 		return ;
 	r1 = get_REG(player, player->pos + 2, map);
 	r2 = get_REG(player, player->pos + 3, map);
@@ -65,7 +41,7 @@ void	add(t_players *player, byte *map)
 	int		r1;
 	int		r2;
 
-	if (check_opp_addsub(player, map) == 0)
+	if (check_oppcode(player, map) == 0)
 		return ;
 	r1 = get_REG(player, player->pos + 2, map);
 	r2 = get_REG(player, player->pos + 3, map);
@@ -93,6 +69,8 @@ void	and_xor(t_players *player, byte *map, char flag)
 	posit = 1;
 	r1 = 0;
 	r2 = 0;
+	if (check_oppcode(player, map) == 0)
+		return ;
 	opp = get_binary(map, player);
 	if (ft_strnstr(opp, "01", 2))
 	{

@@ -17,6 +17,8 @@ void		aff(t_players *player, byte *map)
 {
 	int		reg;
 
+	if (check_oppcode(player, map) == 0)
+		return ;
 	reg = get_REG(player, player->pos + 2, map);
 	if (reg < 32 || reg > 127)
 	{

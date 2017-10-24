@@ -317,7 +317,7 @@ void	go_vm(t_players *players, int count, t_flags *flags)
 		get_stop(&(players[i++]), map);
 	while (flags->DIE > 0)
 	{
-		// if (flags->cycles >= 2640 && flags->cycles <= 2700)
+		// if (flags->cycles >= 3080 && flags->cycles <= 3300)
 		// 	getch();
 		if (flags->dump == flags->cycles)
 			print_map(map);
@@ -347,13 +347,13 @@ void	go_vm(t_players *players, int count, t_flags *flags)
 			check_end(players, map, &stack);
 			flags->cycles_test = 0;
 		}
-		copy = stack;
+		// copy = stack;
 		// refresh_map(win1, map);
 		// cursor_refresh(win1, win2, players, map);
 		// status_bar(&win2, players);
 		// cursor_refresh_stack(win1, win2, stack, map);
 		// wrefresh(win1);
-		// usleep(10000);
+		// usleep(1000);
 		flags->cycles++;
 		flags->cycles_test++;
 	}

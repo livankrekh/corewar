@@ -25,7 +25,7 @@ char	*get_binary(byte *map, t_players *player)
 	int		i;
 
 	res = ft_strnew(8);
-	tmp = ft_itoa_base(map[(*player).pos + 1], 2);
+	tmp = ft_itoa_base(map[(player->pos + 1) % MEM_SIZE], 2);
 	if (ft_strlen(tmp) < 8)
 	{
 		i = ft_strlen(tmp);
@@ -117,7 +117,7 @@ void	live(t_players *players, byte *map, t_players *player)
 		{
 			players[i].live += 1;
 			players[i].last_live = *(players[i].cycles);
-			*(players[i].last_herro) = player->num;
+			*(players[i].last_herro) = players[i].num;
 			if (ft_strnstr(player->header.prog_name, "fork", 4))
 				player->live_amount += 1;
 			player->pos += 5;

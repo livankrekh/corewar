@@ -21,6 +21,8 @@ void	st(t_players *player, byte *map)
 	unsigned int	r1;
 
 	posit = 2;
+	if (check_oppcode(player, map) == 0)
+		return ;
 	binary = get_binary(map, player);
 	binary += 2;
 	r2 = 0;
@@ -53,6 +55,8 @@ void	sti(t_players *player, byte *map)
 	int		r2;
 	int		posit;
 
+	if (check_oppcode(player, map) == 0)
+		return ;
 	binary = get_binary(map, player);
 	binary += 2;
 	posit = 2;

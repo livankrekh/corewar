@@ -15,6 +15,8 @@ int		ft_power(int number, int power)
 	int res;
 
 	res = number;
+	if (power == 0)
+		return (1);
 	while (power > 1)
 	{
 		res *= number;

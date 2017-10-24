@@ -32,6 +32,19 @@ typedef	unsigned char 		byte;
 typedef	int					t_bool;
 typedef struct s_players 	t_players;
 
+typedef struct          s_op
+{
+    char                name[20];
+    int                 arguments;
+    int                 r_d_i[10];
+    int                 number;
+    int                 cycles;
+    char                desriptions[200];
+    int                 octage;
+    int                 carry;
+    int                 label_size;
+}                       t_op;
+
 struct					s_players
 {
 	header_t			header;
@@ -105,5 +118,6 @@ int 					translate(byte r1, byte r2, byte r3, byte r4);
 int						get_TDIR(int n, int posit, byte *map);
 int						get_REG(t_players *player, int posit, byte *map);
 short int				get_INDIR(t_players *player, char flag, int posit, byte *map);
+int						check_oppcode(t_players *player, byte *map);
 
 #endif
