@@ -69,22 +69,22 @@ int			get_TDIR(int n, int posit, byte *map)
 	return (res);
 }
 
-short int	get_INDIR(t_players *player, char flag, int posit, byte *map)
+int		get_INDIR(t_players *player, char flag, int posit, byte *map)
 {
-	short int	res;
-	int			arg;
+	int			res;
+	short int	arg;
 	int			pos;
 
 	res = 0;
-	arg = get_TDIR(2, posit, map);
+	arg = (short int)get_TDIR(2, posit, map);
 	if (player->pos + arg < 0)
-		pos = MEM_SIZE + (player->pos + arg);
+		pos = (MEM_SIZE + (player->pos + (arg % IDX_MOD))) % MEM_SIZE;
 	else
 		pos = (player->pos + (arg % IDX_MOD)) % MEM_SIZE;
 	if (flag == 'r')
-		res = (short int)translate(0, 0, map[pos % MEM_SIZE], map[(pos + 1) % MEM_SIZE]);
+		res = (int)translate(map[pos % MEM_SIZE], map[(pos + 1) % MEM_SIZE], map[(pos + 2) % MEM_SIZE], map[(pos + 3) % MEM_SIZE]);
 	else if (flag == 'd')
-		res = arg;
+		res = (short int)arg;
 	return (res);
 }
 

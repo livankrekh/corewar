@@ -52,8 +52,8 @@ void		fork_func(t_players *player, byte *map, t_players **stack)
 	tmp->live_amount = player->live_amount;
 	tmp->cycles = player->cycles;
 	tmp->num = player->num;
-	tmp->born_cycle = *(player->cycles);
 	tmp->last_herro = player->last_herro;
+	tmp->st = -1;
 	if (player->pos + dir < 0)
 		dir = MEM_SIZE + dir;
 	tmp->pos = (player->pos + dir) % MEM_SIZE;
@@ -79,12 +79,12 @@ void	lfork_func(t_players *player, byte *map, t_players **stack)
 	ft_memcpy(tmp->reg, player->reg, sizeof(unsigned int) * REG_NUMBER);
 	tmp->live = player->live;
 	tmp->live_amount = player->live_amount;
+	tmp->st = -1;
 	if (player->pos + dir < 0)
 		dir = MEM_SIZE + dir;
 	tmp->pos = (player->pos + dir) % MEM_SIZE;
 	get_stop(tmp, map);
 	tmp->cycles = player->cycles;
-	tmp->born_cycle = *(player->cycles);
 	tmp->last_herro = player->last_herro;
 	tmp->num = player->num;
 	tmp->carry = player->carry;

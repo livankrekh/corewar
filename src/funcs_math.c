@@ -28,7 +28,7 @@ void	sub(t_players *player, byte *map)
 		player->pos += 5;
 		return ;
 	}
-	player->reg[map[player->pos + 4] - 1] = r1 - r2;
+	player->reg[map[(player->pos + 4) % MEM_SIZE] - 1] = r1 - r2;
 	player->pos += 5;
 	if (r1 - r2 == 0)
 		player->carry = 1;
@@ -51,7 +51,7 @@ void	add(t_players *player, byte *map)
 		player->pos += 5;
 		return ;
 	}
-	player->reg[map[player->pos + 4] - 1] = r1 + r2;
+	player->reg[map[(player->pos + 4) % MEM_SIZE] - 1] = r1 + r2;
 	player->pos += 5;
 	if (r1 + r2 == 0)
 		player->carry = 1;

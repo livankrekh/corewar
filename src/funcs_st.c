@@ -41,6 +41,7 @@ void	st(t_players *player, byte *map)
 	if (player->pos + r2 < 0)
 		r2 = MEM_SIZE + r2;
 	r1 = (unsigned int)get_REG(player, player->pos + 2, map);
+	// printf("ST R1 = %d || player R3 = %d\n", r1, player->reg[2]);
 	map[(player->pos + r2) % MEM_SIZE] = r1 / 0x1000000;
 	map[(player->pos + r2 + 1) % MEM_SIZE] = (r1 / 0x10000) & 0xFF;
 	map[(player->pos + r2 + 2) % MEM_SIZE] = (r1 / 0x100) & 0xFF;
@@ -98,6 +99,7 @@ void	sti(t_players *player, byte *map)
 		map[(MEM_SIZE + (player->pos + ((r1 + r2) % IDX_MOD + 1))) % MEM_SIZE] = (r3 / 0x10000) & 0xFF;
 		map[(MEM_SIZE + (player->pos + ((r1 + r2) % IDX_MOD + 2))) % MEM_SIZE] = (r3 / 0x100) & 0xFF;
 		map[(MEM_SIZE + (player->pos + ((r1 + r2) % IDX_MOD + 3))) % MEM_SIZE] = r3 % 0x100;
+		player->st = (MEM_SIZE + (player->pos + ((r1 + r2) % IDX_MOD))) % MEM_SIZE;
 	}
 	else
 	{
@@ -105,6 +107,7 @@ void	sti(t_players *player, byte *map)
 		map[(player->pos + ((r1 + r2) % IDX_MOD + 1)) % MEM_SIZE] = (r3 / 0x10000) & 0xFF;
 		map[(player->pos + ((r1 + r2) % IDX_MOD + 2)) % MEM_SIZE] = (r3 / 0x100) & 0xFF;
 		map[(player->pos + ((r1 + r2) % IDX_MOD + 3)) % MEM_SIZE] = r3 % 0x100;
+		player->st = (player->pos + ((r1 + r2) % IDX_MOD)) % MEM_SIZE;
 	}
 	player->pos += posit + 1;
 }

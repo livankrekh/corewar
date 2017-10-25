@@ -60,7 +60,7 @@ struct					s_players
 	int					curr_com;
 	int					*last_herro;
 	int					last_live;
-	int					born_cycle;
+	int					st;
 	t_players			*next;
 };
 
@@ -118,7 +118,7 @@ void					get_stop(t_players *player, byte *map);
 int 					translate(byte r1, byte r2, byte r3, byte r4);
 int						get_TDIR(int n, int posit, byte *map);
 int						get_REG(t_players *player, int posit, byte *map);
-short int				get_INDIR(t_players *player, char flag, int posit, byte *map);
+int						get_INDIR(t_players *player, char flag, int posit, byte *map);
 int						check_oppcode(t_players *player, byte *map);
 
 #endif

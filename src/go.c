@@ -226,6 +226,14 @@ void	check_dead_proccess(t_players **stack)
 	{
 		if (tmp->live + tmp->live_amount == 0)
 		{
+			// if (*stack == tmp2)
+			// 	*stack = tmp2->next;
+			// else
+			// 	tmp2->next = tmp->next;
+			// free(tmp->reg);
+			// tmp->reg = NULL;
+			// free(tmp);
+			// tmp = tmp2->next;
 			if (tmp2 == NULL)
 				*stack = tmp->next;
 			else
@@ -292,9 +300,9 @@ void	go_vm(t_players *players, int count, t_flags *flags)
 	t_players	*stack;
 	t_players	*tmp;
 	int			i;
-	// WINDOW		*win;
-	// WINDOW		*win1;
-	// WINDOW		*win2;
+	WINDOW		*win;
+	WINDOW		*win1;
+	WINDOW		*win2;
 
 	i = 0;
 	flags->cycles = 1;
@@ -304,21 +312,21 @@ void	go_vm(t_players *players, int count, t_flags *flags)
 	flags->DIE = CYCLE_TO_DIE;
 	flags->max_checks = 0;
 	map = get_map(players, count, &(flags->cycles));
-	// win1 = NULL;
-	// win2 = NULL;
-	// win = initscr();
-	// vizualize(map, players, &win1, win);
-	// status_bar(&win2, players);
-	// curs_set(0);
-	// getch();
-	// cursor_refresh(win1, win2, players, map);
-	// getch();
+	win1 = NULL;
+	win2 = NULL;
+	win = initscr();
+	vizualize(map, players, &win1, win);
+	status_bar(&win2, players);
+	curs_set(0);
+	getch();
+	cursor_refresh(win1, win2, players, map);
+	getch();
 	while (players[i].header.prog_name[0] != '\0')
 		get_stop(&(players[i++]), map);
 	while (flags->DIE > 0)
 	{
-		if (flags->cycles >= 3207 && flags->cycles <= 3400)
-			getch();
+		// if (flags->cycles >= 3207 && flags->cycles <= 3400)
+		// 	getch();
 		if (flags->dump == flags->cycles)
 			print_map(map);
 		tmp = stack;
@@ -347,21 +355,21 @@ void	go_vm(t_players *players, int count, t_flags *flags)
 			check_end(players, map, &stack);
 			flags->cycles_test = 0;
 		}
-		// copy = stack;
-		// refresh_map(win1, map);
-		// cursor_refresh(win1, win2, players, map);
-		// status_bar(&win2, players);
-		// cursor_refresh_stack(win1, win2, stack, map);
-		// wrefresh(win1);
-		// usleep(1000);
+		copy = stack;
+		refresh_map(win1, map);
+		cursor_refresh(win1, win2, players, map);
+		status_bar(&win2, players);
+		cursor_refresh_stack(win1, win2, stack, map);
+		wrefresh(win1);
+		usleep(1000);
 		flags->cycles++;
 		flags->cycles_test++;
 	}
 	end_game(players, map, &stack);
-	// delwin(win1);
-	// delwin(win2);
-	// delwin(win);
-	// endwin();
+	delwin(win1);
+	delwin(win2);
+	delwin(win);
+	endwin();
 }
 
 void	start_vm(t_players **tmp, int count, t_flags *flags)
