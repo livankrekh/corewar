@@ -59,6 +59,7 @@ void		fork_func(t_players *player, byte *map, t_players **stack)
 	tmp->pos = (player->pos + dir) % MEM_SIZE;
 	get_stop(tmp, map);
 	tmp->carry = player->carry;
+	tmp->number = player->number;
 	player->pos += 3;
 }
 
@@ -88,5 +89,6 @@ void	lfork_func(t_players *player, byte *map, t_players **stack)
 	tmp->last_herro = player->last_herro;
 	tmp->num = player->num;
 	tmp->carry = player->carry;
+	tmp->number = player->number;
 	player->pos += 3;
 }

@@ -17,6 +17,7 @@ t_flags *create_flags(void)
     flags->DIE = 0;
     flags->cycles_test = 0;
     flags->max_checks = 0;
+    flags->map_color = NULL;
 	return (flags);
 }
 
@@ -39,5 +40,6 @@ t_players *create_players(void)
 	players->curr_com = 0;
 	players->st = -1;
 	players->next = NULL;
+	players->number = 0;
 	return (players);
 }

@@ -1,4 +1,4 @@
-/* ************************************************************************** */
+/*/* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   viz_dop.c                                          :+:      :+:    :+:   */
@@ -13,7 +13,7 @@
 #include "../includes/vm.h"
 #include "../includes/op.h"
 
-char	*get_hex(byte val)
+/*char	*get_hex(byte val)
 {
 	char	*tmp;
 	char	*res;
@@ -133,4 +133,4 @@ void	cursor_refresh(WINDOW *win1, WINDOW *win2, t_players *players, byte *map)
 	wrefresh(win1);
 	wrefresh(win2);
 	tmp = NULL;
-}
+}*/

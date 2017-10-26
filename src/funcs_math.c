@@ -22,12 +22,6 @@ void	sub(t_players *player, byte *map)
 		return ;
 	r1 = get_REG(player, player->pos + 2, map);
 	r2 = get_REG(player, player->pos + 3, map);
-	if (map[(player->pos + 4) % MEM_SIZE] < 1 ||
-		map[(player->pos + 4) % MEM_SIZE] > REG_NUMBER)
-	{
-		player->pos += 5;
-		return ;
-	}
 	player->reg[map[(player->pos + 4) % MEM_SIZE] - 1] = r1 - r2;
 	player->pos += 5;
 	if (r1 - r2 == 0)
@@ -45,12 +39,6 @@ void	add(t_players *player, byte *map)
 		return ;
 	r1 = get_REG(player, player->pos + 2, map);
 	r2 = get_REG(player, player->pos + 3, map);
-	if (map[(player->pos + 4) % MEM_SIZE] < 1 ||
-		map[(player->pos + 4) % MEM_SIZE] > REG_NUMBER)
-	{
-		player->pos += 5;
-		return ;
-	}
 	player->reg[map[(player->pos + 4) % MEM_SIZE] - 1] = r1 + r2;
 	player->pos += 5;
 	if (r1 + r2 == 0)

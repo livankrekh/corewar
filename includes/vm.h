@@ -61,6 +61,7 @@ struct					s_players
 	int					*last_herro;
 	int					last_live;
 	int					st;
+	int					number;
 	t_players			*next;
 };
 
@@ -78,6 +79,7 @@ typedef struct			s_flags
 	int					DIE;
 	int					cycles_test;
 	int					max_checks;
+	byte				*map_color;
 }						t_flags;
 
 t_players	*copy;
@@ -120,5 +122,6 @@ int						get_TDIR(int n, int posit, byte *map);
 int						get_REG(t_players *player, int posit, byte *map);
 int						get_INDIR(t_players *player, char flag, int posit, byte *map);
 int						check_oppcode(t_players *player, byte *map);
+int						check_reg(int posit, byte *map);
 
 #endif

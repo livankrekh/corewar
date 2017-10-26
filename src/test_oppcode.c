@@ -39,6 +39,14 @@ t_op    op_tab[17] =
 	{"aff", 1, {T_REG}, 16, 2, "aff", 1, 0, 4}
 };
 
+int		check_reg(int posit, byte *map)
+{
+	if (map[posit % MEM_SIZE] >= 1 && map[posit % MEM_SIZE] <= REG_NUMBER)
+		return (1);
+	else
+		return (0);
+}
+
 int		get_bit(byte curr_byte, int n)
 {
 	if (n < 1 || n > 8)
@@ -69,12 +77,16 @@ int		check_oppcode(t_players *player, byte *map)
 		ok = 0;
 	else if (get_bit(op_tab[player->curr_com - 1].r_d_i[0], oppcode >> 6) == 0)
 		ok = 0;
+	else if ((oppcode >> 6) == 1 && check_reg(player->pos + posit + 1, map) == 0)
+		ok = 0;
 	posit += check_posit(oppcode >> 6, player);
 	if (op_tab[player->curr_com - 1].arguments > 1)
 	{
 		if ((oppcode >> 4 & 3) == 0)
 			ok = 0;
 		else if (get_bit(op_tab[player->curr_com - 1].r_d_i[1], oppcode >> 4 & 3) == 0)
+			ok = 0;
+		else if ((oppcode >> 4 & 3) == 1 && check_reg(player->pos + posit + 1, map) == 0)
 			ok = 0;
 		posit += check_posit(oppcode >> 4 & 3, player);
 	}
@@ -83,6 +95,8 @@ int		check_oppcode(t_players *player, byte *map)
 		if ((oppcode >> 2 & 3) == 0)
 			ok = 0;
 		else if (get_bit(op_tab[player->curr_com - 1].r_d_i[2], oppcode >> 2 & 3) == 0)
+			ok = 0;
+		else if ((oppcode >> 2 & 3) == 1 && check_reg(player->pos + posit + 1, map) == 0)
 			ok = 0;
 		posit += check_posit(oppcode >> 2 & 3, player);
 	}
