@@ -125,7 +125,10 @@ void	live(t_players *players, byte *map, t_players *player)
 		}
 		i++;
 	}
-	player->live_amount += 1;
+	if (ft_strnstr(player->header.prog_name, "fork", 4))
+		player->live += 1;
+	else
+		player->live_amount += 1;
 	*(player->last_herro) = player->num;
 	(*player).pos += 5;
 }

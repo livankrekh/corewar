@@ -219,10 +219,10 @@ void	end_game(t_players *players, byte *map, t_players **stack, t_flags *flags)
 	}
 }
 
-int 	get_lives(t_players *players)
+int 	get_lives(t_players *players, t_players *stack)
 {
-	int 	res;
-	int 	i;
+	int 		res;
+	int 		i;
 
 	res = 0;
 	i = 0;
@@ -230,6 +230,11 @@ int 	get_lives(t_players *players)
 	{
 		res += players[i].live + players[i].live_amount;
 		i++;
+	}
+	while (stack)
+	{
+		res += stack->live;
+		stack = stack->next;
 	}
 	return (res);
 }
@@ -249,42 +254,44 @@ int 	check_count_proccess(t_players *stack)
 
 void	check_dead_proccess(t_players **stack)
 {
+	t_players	*prev;
+	t_players	*curr;
 	t_players	*tmp;
-	t_players	*tmp2;
 
-	tmp = *stack;
-	tmp2 = NULL;
-	while (tmp)
+	prev = *stack;
+	curr = *stack;
+	tmp = NULL;
+	while (curr)
 	{
-		if (tmp->live + tmp->live_amount == 0)
+		if (curr->live + curr->live_amount <= 0)
 		{
-			// if (*stack == tmp2)
-			// 	*stack = tmp2->next;
-			// else
-			// 	tmp2->next = tmp->next;
-			// free(tmp->reg);
-			// tmp->reg = NULL;
-			// free(tmp);
-			// tmp = tmp2->next;
-			if (tmp2 == NULL)
-				*stack = tmp->next;
+			tmp = curr->next;
+			if (*(curr->cycles) == 20989)
+				printf("Process with %p of player #%d is dead\n", curr, curr->num);
+			free(curr->reg);
+			curr->reg = NULL;
+			free(curr);
+			if (prev == *stack)
+				*stack = tmp;
 			else
-				tmp2->next = tmp->next;
-			free(tmp->reg);
-			tmp->reg = NULL;
-			free(tmp);
-			if (tmp2 == NULL)
-				tmp = *stack;
-			else
-				tmp = tmp2->next;
+				prev->next = tmp;
+			curr = tmp;
 		}
 		else
 		{
-			tmp->live = 0;
-			tmp->live_amount = 0;
-			tmp2 = tmp;
-			tmp = tmp->next;
+			prev = curr;
+			curr = curr->next;
 		}
+	}
+}
+
+void	stack0(t_players *stack)
+{
+	while (stack)
+	{
+		stack->live = 0;
+		stack->live_amount = 0;
+		stack = stack->next;
 	}
 }
 
@@ -305,6 +312,7 @@ void	check_end(t_players *players, byte *map, t_players **stack, t_flags *flags)
 		i++;
 	}
 	check_dead_proccess(stack);
+	stack0(*stack);
 	if (get_alive_players(players) == 0 && *stack == NULL)
 		end_game(players, map, stack, flags);
 }
@@ -361,7 +369,7 @@ void	go_vm(t_players *players, int count, t_flags *flags)
 		if (flags->cycles_test >= flags->DIE)
 		{
 			i = 0;
-			if (get_lives(players) >= NBR_LIVE || flags->max_checks == 10)
+			if (get_lives(players, tmp) >= NBR_LIVE || flags->max_checks == 10)
 			{
 				flags->DIE -= CYCLE_DELTA;
 				flags->max_checks = 0;
@@ -814,7 +822,7 @@ void	include_beginer_vis(t_players *players, t_flags *flags)
 	initscr();
 	nodelay(stdscr, true);
     keypad(stdscr, true);
-    raw();
+    //raw();
     curs_set(0);
     start_color();
     include_colors();
@@ -991,7 +999,6 @@ void	refresh_cursor(t_players *players, t_flags *flags, t_players *stack, byte *
 
 void	include_refresh_vis(t_players *players, t_flags *flags, t_players *stack, byte *map)
 {
-	// refresh();
 	noecho();
 	print_board();
 	print_new_map(map, flags->map_color);
@@ -1006,6 +1013,8 @@ void	include_refresh_vis(t_players *players, t_flags *flags, t_players *stack, b
 	else if (flags->amount_players == 4)
 		lives_right_row(players, flags->DIE, 12);
 	board_kay(flags);
+	refresh_cursor(players, flags, stack, map);
+	refresh();
 }
 
 void	go_vm_vis(t_players *players, int count, t_flags *flags)
@@ -1025,8 +1034,6 @@ void	go_vm_vis(t_players *players, int count, t_flags *flags)
 	map = get_map(players, count, &(flags->cycles));
 	flags->map_color = get_map_color(players, count, &(flags->cycles));
 	include_beginer_vis(players, flags);
-	refresh_cursor(players, flags, stack, map);
-	refresh();
 	while (players[i].header.prog_name[0] != '\0')
 		get_stop(&(players[i++]), map);
 	while (flags->DIE > 0)
@@ -1052,7 +1059,7 @@ void	go_vm_vis(t_players *players, int count, t_flags *flags)
 			if (flags->cycles_test >= flags->DIE)
 			{
 				i = 0;
-				if (get_lives(players) >= NBR_LIVE || flags->max_checks == 10)
+				if (get_lives(players, tmp) >= NBR_LIVE || flags->max_checks == 10)
 				{
 					flags->DIE -= CYCLE_DELTA;
 					flags->max_checks = 0;
@@ -1063,22 +1070,12 @@ void	go_vm_vis(t_players *players, int count, t_flags *flags)
 				flags->cycles_test = 0;
 			}
 			include_refresh_vis(players, flags, stack, map);
-			refresh_cursor(players, flags, stack, map);
-			refresh();
-			// cursor_refresh(win1, win2, players, map);
-			// cursor_refresh_stack(win1, win2, stack, map);
 			usleep(100000 / flags->speed);
 			flags->cycles++;
 			flags->cycles_test++;
 		}
 		else
-		{
-			if (getch() == 32)
-				flags->paused = 0;
-			// include_refresh_vis(players, flags, stack, map);
-			// refresh_cursor(players, flags, stack, map);
-			// refresh();
-		}
+			include_refresh_vis(players, flags, stack, map);
 	}
 	end_game(players, map, &stack, flags);
 }
