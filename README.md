@@ -2,7 +2,7 @@
 
 ---
 
-**Core War was inspired by a malicious virus written in the 80’s.** To deal with the self-replicating virus, a white hat hacker invented Reaper. It was a virus designed to spread and eliminate the malware. He fought fire with fire.
+[**Core War was inspired by a malicious virus written in the 80’s.**](https://en.wikipedia.org/wiki/Core_War) To deal with the self-replicating virus, a white hat hacker invented Reaper. It was a virus designed to spread and eliminate the malware. He fought fire with fire.
 
 This inspired A. K. Dewdney to coin the idea for Core War.
 
@@ -84,7 +84,7 @@ If you want to create and then compile players, use the asm:
 
 ## Technical Implementation Overview
 
-I did Core War with three friends: @ybelilov, @ngulya, and @beardings.
+I did Core War with three friends: [@ngulya](https://github.com/ngulya), [@beardings](https://github.com/beardings), and [@ybelilov](https://github.com/ybelilov).
 
 The Core War consists of players that are written in assembly, a compiler to turn them into binary, and the virtual computer to run the programs on. 
 
