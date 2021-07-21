@@ -13,7 +13,13 @@
 NAME = libft.a
 
 CC = gcc
-FLAGS = -Wall -Wextra -Werror
+UNAME = $(shell uname)
+
+ifeq ($(UNAME), Linux)
+	FLAGS = -Wall -Wextra
+else
+	FLAGS = -Wall -Wextra -Werror
+endif
 
 INC = ./includes
 LIB = ./libft

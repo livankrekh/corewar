@@ -14,8 +14,14 @@ NAME_C = corewar
 NAME_A = asm
 
 CC = gcc
-FLAGS = -Wall -Wextra -Werror
+UNAME = $(shell uname)
 CURS = -lncurses
+
+ifeq ($(UNAME), Linux)
+	FLAGS = -Wall -Wextra
+else
+	FLAGS = -Wall -Wextra -Werror
+endif
 
 ASM = Asm/src/
 VM = Vm/src/
@@ -90,19 +96,19 @@ ASM_CMP =	asm_main.o \
 all: $(NAME_C) $(NAME_A)
 
 $(NAME_C): $(VM_CMP)
-	@make -C $(LIBFT)
-	@$(CC) $(FLAGS) -o $(NAME_C) -L $(LIBFT) -lft $(VM_CMP) $(CURS)
-	@echo "made" $(NAME_C)
+	make -C $(LIBFT)
+	$(CC) $(FLAGS) -o $(NAME_C) $(VM_CMP) $(CURS) -L $(LIBFT) -lft
+	@echo "\033[1;32mmade" $(NAME_C) "\033[0m"
 
 $(NAME_A): $(ASM_CMP)
-	@$(CC) $(FLAGS) -o $(NAME_A) -L $(LIBFT) -lft $(ASM_CMP)
-	@echo "made" $(NAME_A)
+	$(CC) $(FLAGS) -o $(NAME_A) $(ASM_CMP) -L $(LIBFT) -lft
+	@echo "\033[1;32mmade" $(NAME_A) "\033[0m"
 
 $(VM_CMP): %.o: $(VM)%.c
-	@$(CC) -c $(FLAGS) -I $(FT_INC) -I $(INC_VM) $< -o $@
+	$(CC) -c $(FLAGS) -I $(FT_INC) -I $(INC_VM) $< -o $@
 
 $(ASM_CMP): %.o: $(ASM)%.c
-	@$(CC) -c $(FLAGS) -I $(FT_INC) -I $(INC_ASM) $< -o $@
+	$(CC) -c $(FLAGS) -I $(FT_INC) -I $(INC_ASM) $< -o $@
 
 clean:
 	@-/bin/rm -f $(VM_CMP)
@@ -111,7 +117,7 @@ clean:
 	@echo "cleaned" $(NAME_C)
 	@echo "cleaned" $(NAME_A)
 
-fclean: clean
+fclean: clean rmf
 	@-/bin/rm -f $(NAME_C)
 	@-/bin/rm -f $(NAME_A)
 	@-make fclean -C $(LIBFT)
